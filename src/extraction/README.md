@@ -1,5 +1,5 @@
 ### TODO:
-- Here we create extraction class:
+- Here we create extraction class (based on Docling for now):
   - which will use different extractors for different file types:
   - Starting with pdf files.
   - Later, HTML, CSV etc
