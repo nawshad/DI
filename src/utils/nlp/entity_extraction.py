@@ -5,7 +5,13 @@ a text input and provides a standardized text output (entities with their
 type and any extra attributes). For stanza based methods, entity extraction
 and their extra attributes is done simultaneously.
 '''
+import warnings
+
+import spacy
 import stanza
+
+# from transformers import AutoTokenizer, AutoModelForTokenClassification
+# from transformers import pipeline
 
 
 class EntityExtractor:
@@ -22,19 +28,41 @@ class EntityExtractor:
               f"common EntityExtractor, unless overridden for: {self.nlp_object} for: {text}")
 
 class SpacyEntityExtractor(EntityExtractor):
-    def input_processing(self, text):
-        print(f"Input processing Overridden here at "
-              f"spacy based processing for: {self.nlp_object} for: {text}")
     def output_processing(self, text):
         print(f"Output processing Overridden here at "
               f"spacy based processing for: {self.nlp_object} for: {text}")
+        doc = nlp(text)
+        entity_attribs = {}
+        for ent in doc.ents:
+            entity_attribs[ent] = ent.label_
+        return entity_attribs
 
 class StanzaEntityExtractor(EntityExtractor):
     def output_processing(self, text):
-        print(f"Output processing Overridden here at "
-              f"spacy based processing for: {self.nlp_object} for: {text}")
+        entity_attribs = {}
+        doc = nlp(text)
+        for ent in doc.ents:
+            print(f"ent: {ent}")
+            entity_attribs[ent.text] = ent.type
+        return entity_attribs
+
 
 if __name__ == "__main__":
+    nlp = spacy.load("en_core_web_sm")
+    text = "Apple Inc. is a technology company based in Cupertino, California."
+    # #
+    # #
+    spacy_nlp = EntityExtractor(nlp_object=nlp)
+    spacEE = SpacyEntityExtractor(nlp_object=spacy_nlp)
+    print(f"Spacy output: {spacEE.output_processing(text=text)}")
+
+    # tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
+    # model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
+    #
+    # nlp = pipeline(task="ner", model=model, tokenizer=tokenizer)
+    # ner_results = nlp(text)
+    # print(ner_results)
+
     nlp = stanza.Pipeline(
         lang='en',
         use_gpu=False,
@@ -45,7 +73,7 @@ if __name__ == "__main__":
         'ner,'
         'coref'
     )
-    nlpObjectInit = EntityExtractor(nlp_object=nlp)
-    sEE = SpacyEntityExtractor(nlp_object=nlpObjectInit)
-    sEE.input_processing(text="input processing for spacy")
-    sEE.output_processing(text="output processing for spacy")
+
+    stanza_nlp = EntityExtractor(nlp_object=nlp)
+    stanEE = StanzaEntityExtractor(nlp_object=stanza_nlp)
+    print(f"Stanza output: {stanEE.output_processing(text=text)}")
