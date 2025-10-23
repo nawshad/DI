@@ -37,3 +37,12 @@ reusuable code from utils based on underlying Store Types:
     - llm_used
     - score
     - extraction_timestamp
+
+  - Application Logs:
+    - id
+    - user_id
+    - session_id
+    - user_query
+    - gpt_response
+    - model
+    - timestamp
