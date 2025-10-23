@@ -24,14 +24,15 @@ reusuable code from utils based on underlying Store Types:
   - Vector Store
     - chunk_id
     - doc_id
-    - chunk_content
+    - chunk_content_text
+    - summary
     
   - Triple Store
     - triple_id
     - chunk_id
     - doc_id
     - subject
-    - relations
+    - relationship
     - object
     - llm_used
     - score

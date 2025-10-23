@@ -6,7 +6,7 @@ type and any extra attributes). For stanza based methods, entity extraction
 and their extra attributes is done simultaneously.
 '''
 import warnings
-
+from typing import Dict
 import spacy
 import stanza
 
@@ -23,26 +23,33 @@ class EntityExtractor:
         print(f"Here we will do input processing relevant to "
               f"common EntityExtractor, unless overridden for: {self.nlp_object} for: {text}")
 
-    def output_processing(self, text):
+    def output_processing(self, text: str)-> Dict[str,str]:
+        entity_attribs = {}
         print(f"Here we will do output processing relevant to "
               f"common EntityExtractor, unless overridden for: {self.nlp_object} for: {text}")
+        return entity_attribs
+
 
 class SpacyEntityExtractor(EntityExtractor):
-    def output_processing(self, text):
+    def output_processing(self, text: str)->Dict[str,str]:
         print(f"Output processing Overridden here at "
               f"spacy based processing for: {self.nlp_object} for: {text}")
         doc = nlp(text)
+
+        # print(f"doc[1:4]: {doc[1:3].kb_id}")
+
         entity_attribs = {}
         for ent in doc.ents:
-            entity_attribs[ent] = ent.label_
+            entity_attribs[ent.text] = ent.label_
         return entity_attribs
 
+
 class StanzaEntityExtractor(EntityExtractor):
-    def output_processing(self, text):
+    def output_processing(self, text: str)->Dict[str,str]:
         entity_attribs = {}
         doc = nlp(text)
         for ent in doc.ents:
-            print(f"ent: {ent}")
+            # print(f"ent: {ent}, {type(ent.type)}")
             entity_attribs[ent.text] = ent.type
         return entity_attribs
 
