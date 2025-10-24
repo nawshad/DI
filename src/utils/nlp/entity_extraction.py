@@ -9,6 +9,8 @@ import warnings
 from typing import Dict
 import spacy
 import stanza
+from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+
 
 # from transformers import AutoTokenizer, AutoModelForTokenClassification
 # from transformers import pipeline
@@ -34,10 +36,7 @@ class SpacyEntityExtractor(EntityExtractor):
     def output_processing(self, text: str)->Dict[str,str]:
         print(f"Output processing Overridden here at "
               f"spacy based processing for: {self.nlp_object} for: {text}")
-        doc = nlp(text)
-
-        # print(f"doc[1:4]: {doc[1:3].kb_id}")
-
+        doc = self.nlp_object(text)
         entity_attribs = {}
         for ent in doc.ents:
             entity_attribs[ent.text] = ent.label_
@@ -46,29 +45,40 @@ class SpacyEntityExtractor(EntityExtractor):
 
 class StanzaEntityExtractor(EntityExtractor):
     def output_processing(self, text: str)->Dict[str,str]:
+        print(f"Output processing Overridden here at "
+              f"spacy based processing for: {self.nlp_object} for: {text}")
+        doc = self.nlp_object(text)
         entity_attribs = {}
-        doc = nlp(text)
         for ent in doc.ents:
-            # print(f"ent: {ent}, {type(ent.type)}")
             entity_attribs[ent.text] = ent.type
         return entity_attribs
 
 
+class BERTEntityExtractor(EntityExtractor):
+    def output_processing(self, text: str)->Dict[str,str]:
+        entity_attribs = {}
+        entities = self.nlp_object(text)
+        for entity in entities:
+            entity_attribs[entity['word']] = entity['entity_group']
+        return entity_attribs
+
+
 if __name__ == "__main__":
-    nlp = spacy.load("en_core_web_sm")
+
     text = "Apple Inc. is a technology company based in Cupertino, California."
-    # #
-    # #
+    # # #
+    # # #
+    nlp = spacy.load("en_core_web_sm")
     spacy_nlp = EntityExtractor(nlp_object=nlp)
-    spacEE = SpacyEntityExtractor(nlp_object=spacy_nlp)
+    spacEE = SpacyEntityExtractor(nlp_object=spacy_nlp.nlp_object)
     print(f"Spacy output: {spacEE.output_processing(text=text)}")
 
-    # tokenizer = AutoTokenizer.from_pretrained("dslim/bert-base-NER")
-    # model = AutoModelForTokenClassification.from_pretrained("dslim/bert-base-NER")
+
+    nlp = pipeline(task= "ner", model="dbmdz/bert-large-cased-finetuned-conll03-english", aggregation_strategy="simple")
     #
-    # nlp = pipeline(task="ner", model=model, tokenizer=tokenizer)
-    # ner_results = nlp(text)
-    # print(ner_results)
+    bert_nlp = EntityExtractor(nlp_object=nlp)
+    BertEE = BERTEntityExtractor(nlp_object=bert_nlp.nlp_object)
+    print(f"BERT output: {BertEE.output_processing(text=text)}")
 
     nlp = stanza.Pipeline(
         lang='en',
@@ -82,5 +92,5 @@ if __name__ == "__main__":
     )
 
     stanza_nlp = EntityExtractor(nlp_object=nlp)
-    stanEE = StanzaEntityExtractor(nlp_object=stanza_nlp)
+    stanEE = StanzaEntityExtractor(nlp_object=stanza_nlp.nlp_object)
     print(f"Stanza output: {stanEE.output_processing(text=text)}")

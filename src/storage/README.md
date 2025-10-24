@@ -2,8 +2,9 @@
 - Code for all kinds of Stores Creation, as follows, also, uses
 reusuable code from utils based on underlying Store Types:
 
-  - Data Store:
-    - doc_id
+## Tables for DI
+  - DocStore:
+    - doc_id --pk
     - doc_name
     - source_path
     - raw_content
@@ -14,23 +15,23 @@ reusuable code from utils based on underlying Store Types:
     - entity_doc_rel
     - upload_timestamp
     
-  - Artifact Store
-    - art_id
-    - doc_id
+  - ArtifactStore
+    - art_id --pk
+    - doc_id --fk ref DocStore(doc_id)
     - chunk_id
     - raw_art_content
     - art_content_text
     
-  - Vector Store
-    - chunk_id
-    - doc_id
+  - VectorStore
+    - chunk_id --pk
+    - doc_id --fk ref DocStore(doc_id)
     - chunk_content_text
     - summary
     
-  - Triple Store
-    - triple_id
-    - chunk_id
-    - doc_id
+  - TripleStore
+    - triple_id --pk
+    - chunk_id --fk ref VectorStore(chunk_id)
+    - doc_id --fk ref DocStore(doc_id)
     - subject
     - relationship
     - object
@@ -38,11 +39,52 @@ reusuable code from utils based on underlying Store Types:
     - score
     - extraction_timestamp
 
-  - Application Logs:
-    - id
-    - user_id
+  - ApplicationLogs:
+    - id 
+    - user_id 
     - session_id
     - user_query
     - gpt_response
     - model
     - timestamp
+
+### Tables for AI Search
+  - Searches
+    - search_id --pk
+    - user_id --fk ref Users(id)
+    - title
+    - description
+    - tags
+    - metadata
+    - mock_file_type
+    - isFavorite
+    - created_at
+    - updated_at
+    
+  - SearchPrompts
+    - prompt_internal_id --pk,
+    - search_id --fk ref Searches(search_id) INDEXED
+    - prompt
+    - response
+    - response_text
+    - timestamp
+
+  - Users
+    - id --pk
+    - username
+    - password
+    - role
+    - email
+    
+  - Cases
+    - case_id --pk
+    - user_id --fk ref Users(id) INDEXED, ON DELETE CASCADE 
+    - name
+    - description
+    - folder_path
+    - file_data
+    - created_at
+    - updated_at
+    
+    
+  
