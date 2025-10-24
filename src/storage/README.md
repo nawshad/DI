@@ -40,7 +40,7 @@ reusuable code from utils based on underlying Store Types:
     - extraction_timestamp
 
   - ApplicationLogs:
-    - id 
+    - id --pk
     - user_id 
     - session_id
     - user_query
