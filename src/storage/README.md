@@ -56,7 +56,7 @@ reusuable code from utils based on underlying Store Types:
     - description
     - tags
     - metadata
-    - mock_file_type
+    - mock_file_type ??
     - isFavorite
     - created_at
     - updated_at
@@ -78,11 +78,11 @@ reusuable code from utils based on underlying Store Types:
     
   - Cases
     - case_id --pk
-    - user_id --fk ref Users(id) INDEXED, ON DELETE CASCADE 
+    - user_id --fk ref Users(id) INDEXED, ON DELETE CASCADE  ??
     - name
     - description
     - folder_path
-    - file_data
+    - file_data ??
     - created_at
     - updated_at
     
