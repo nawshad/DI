@@ -27,7 +27,7 @@ class EntityExtractor:
     def input_processing(self, text:str) -> str:
         pass
 
-    # Generic Output processing applicable for all Extractors
+    # Generic Output processing applicable for all Extractors,
     # can be overridden inside the child class, or augmented
     # inside the child class, by calling it through super().
     def output_processing(self, text: str)-> Dict[str,str]:
@@ -36,7 +36,7 @@ class EntityExtractor:
 
 class SpacyEntityExtractor(EntityExtractor):
     def __init__(self, nlp_object):
-        super().__init__()
+        super().__init__() #required to override parent attributes
         self.nlp_object = nlp_object
 
     def output_processing(self, text: str)->Dict[str,str]:
@@ -51,7 +51,7 @@ class SpacyEntityExtractor(EntityExtractor):
 
 class StanzaEntityExtractor(EntityExtractor):
     def __init__(self, nlp_object):
-        super().__init__()
+        super().__init__()  #required to override parent attributes
         self.nlp_object = nlp_object
 
     def output_processing(self, text: str)->Dict[str,str]:
@@ -66,7 +66,7 @@ class StanzaEntityExtractor(EntityExtractor):
 
 class BERTEntityExtractor(EntityExtractor):
     def __init__(self, nlp_object):
-        super().__init__()
+        super().__init__()  #required to override parent attributes
         self.nlp_object = nlp_object
 
     def output_processing(self, text: str)->Dict[str,str]:
