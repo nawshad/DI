@@ -17,23 +17,28 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification, pipelin
 
 
 class EntityExtractor:
-    def __init__(self, nlp_object):
-        self.nlp_object = nlp_object
+    # Define generic variables initialization if required
+    def __init__(self):
+        pass
 
-    #TODO: input processing is same for both Spacy and Stanza, make LLM input same as well.
+    # Generic Input processing applicable for all Extractors,
+    # can be overridden inside the child class, or augmented
+    # inside the child class, by calling it through super().
     def input_processing(self, text:str) -> str:
-        clean_text = ''
-        print(f"Here we will do input processing relevant to "
-              f"common EntityExtractor, unless overridden for: {self.nlp_object} for: {text}")
-        return clean_text
+        pass
+
+    # Generic Output processing applicable for all Extractors
+    # can be overridden inside the child class, or augmented
+    # inside the child class, by calling it through super().
     def output_processing(self, text: str)-> Dict[str,str]:
-        entity_attribs = {}
-        print(f"Here we will do output processing relevant to "
-              f"common EntityExtractor, unless overridden for: {self.nlp_object} for: {text}")
-        return entity_attribs
+        pass
 
 
 class SpacyEntityExtractor(EntityExtractor):
+    def __init__(self, nlp_object):
+        super().__init__()
+        self.nlp_object = nlp_object
+
     def output_processing(self, text: str)->Dict[str,str]:
         print(f"Output processing Overridden here at "
               f"spacy based processing for: {self.nlp_object} for: {text}")
@@ -45,6 +50,10 @@ class SpacyEntityExtractor(EntityExtractor):
 
 
 class StanzaEntityExtractor(EntityExtractor):
+    def __init__(self, nlp_object):
+        super().__init__()
+        self.nlp_object = nlp_object
+
     def output_processing(self, text: str)->Dict[str,str]:
         print(f"Output processing Overridden here at "
               f"spacy based processing for: {self.nlp_object} for: {text}")
@@ -56,6 +65,10 @@ class StanzaEntityExtractor(EntityExtractor):
 
 
 class BERTEntityExtractor(EntityExtractor):
+    def __init__(self, nlp_object):
+        super().__init__()
+        self.nlp_object = nlp_object
+
     def output_processing(self, text: str)->Dict[str,str]:
         entity_attribs = {}
         entities = self.nlp_object(text)
@@ -66,20 +79,28 @@ class BERTEntityExtractor(EntityExtractor):
 
 if __name__ == "__main__":
 
-    text = ("Apple Inc. is a technology company based in Cupertino, California. John Anderson used to work there. "
-            "Not sure, John still works there, but his brother Andy works there.")
-    # # #
-    # # #
+    text = (
+        "Apple Inc. is a technology company based in "
+        "Cupertino, California. John Anderson used to work there. "
+        "Not sure, John still works there, but his brother "
+        "Andy works there."
+    )
+
+    # Spacy based Entity Extraction
     nlp = spacy.load("en_core_web_sm")
-    spacy_nlp = EntityExtractor(nlp_object=nlp)
-    spacEE = SpacyEntityExtractor(nlp_object=spacy_nlp.nlp_object)
+    spacEE = SpacyEntityExtractor(nlp_object=nlp)
+
     print(f"Spacy output: {spacEE.output_processing(text=text)}")
 
 
-    nlp = pipeline(task= "ner", model="dbmdz/bert-large-cased-finetuned-conll03-english", aggregation_strategy="simple")
-    #
-    bert_nlp = EntityExtractor(nlp_object=nlp)
-    BertEE = BERTEntityExtractor(nlp_object=bert_nlp.nlp_object)
+    # BERT based Entity Extraction
+    nlp = pipeline(
+        task="ner",
+        model="dbmdz/bert-large-cased-finetuned-conll03-english",
+        aggregation_strategy="simple"
+    )
+
+    BertEE = BERTEntityExtractor(nlp_object=nlp)
     print(f"BERT output: {BertEE.output_processing(text=text)}")
 
     nlp = stanza.Pipeline(
@@ -93,6 +114,5 @@ if __name__ == "__main__":
         'coref'
     )
 
-    stanza_nlp = EntityExtractor(nlp_object=nlp)
-    stanEE = StanzaEntityExtractor(nlp_object=stanza_nlp.nlp_object)
+    stanEE = StanzaEntityExtractor(nlp_object=nlp)
     print(f"Stanza output: {stanEE.output_processing(text=text)}")
