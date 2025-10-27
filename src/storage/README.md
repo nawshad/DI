@@ -9,10 +9,12 @@ reusuable code from utils based on underlying Store Types:
     - source_path
     - raw_content
     - raw_text
+    - file_type
     - coref_resolved_text
     - summary
     - entity_attribs
     - entity_doc_rel
+    - entity_assoc
     - upload_timestamp
     
   - ArtifactStore
@@ -78,11 +80,11 @@ reusuable code from utils based on underlying Store Types:
     
   - Cases
     - case_id --pk
-    - user_id --fk ref Users(id) INDEXED, ON DELETE CASCADE  ??
+    - user_id --fk ref Users(id) INDEXED, ON DELETE CASCADE  ?? (ensures an user's access to a specific case)
     - name
     - description
     - folder_path
-    - file_data ??
+    - file_data ?? (not sure, may be place holder)
     - created_at
     - updated_at
     
