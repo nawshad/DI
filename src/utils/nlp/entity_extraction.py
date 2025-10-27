@@ -36,7 +36,7 @@ class EntityExtractor:
 
 class SpacyEntityExtractor(EntityExtractor):
     def __init__(self, nlp_object):
-        super().__init__() #required to override parent attributes
+        super().__init__() # required to override parent attributes
         self.nlp_object = nlp_object
 
     def output_processing(self, text: str)->Dict[str,str]:
@@ -51,7 +51,7 @@ class SpacyEntityExtractor(EntityExtractor):
 
 class StanzaEntityExtractor(EntityExtractor):
     def __init__(self, nlp_object):
-        super().__init__()  #required to override parent attributes
+        super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
     def output_processing(self, text: str)->Dict[str,str]:
@@ -66,7 +66,7 @@ class StanzaEntityExtractor(EntityExtractor):
 
 class BERTEntityExtractor(EntityExtractor):
     def __init__(self, nlp_object):
-        super().__init__()  #required to override parent attributes
+        super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
     def output_processing(self, text: str)->Dict[str,str]:
@@ -78,7 +78,6 @@ class BERTEntityExtractor(EntityExtractor):
 
 
 if __name__ == "__main__":
-
     text = (
         "Apple Inc. is a technology company based in "
         "Cupertino, California. John Anderson used to work there. "
@@ -89,7 +88,6 @@ if __name__ == "__main__":
     # Spacy based Entity Extraction
     nlp = spacy.load("en_core_web_sm")
     spacEE = SpacyEntityExtractor(nlp_object=nlp)
-
     print(f"Spacy output: {spacEE.output_processing(text=text)}")
 
 
@@ -116,3 +114,4 @@ if __name__ == "__main__":
 
     stanEE = StanzaEntityExtractor(nlp_object=nlp)
     print(f"Stanza output: {stanEE.output_processing(text=text)}")
+
