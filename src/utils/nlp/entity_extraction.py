@@ -21,10 +21,11 @@ class EntityExtractor:
         self.nlp_object = nlp_object
 
     #TODO: input processing is same for both Spacy and Stanza, make LLM input same as well.
-    def input_processing(self, text):
+    def input_processing(self, text:str) -> str:
+        clean_text = ''
         print(f"Here we will do input processing relevant to "
               f"common EntityExtractor, unless overridden for: {self.nlp_object} for: {text}")
-
+        return clean_text
     def output_processing(self, text: str)-> Dict[str,str]:
         entity_attribs = {}
         print(f"Here we will do output processing relevant to "
@@ -65,7 +66,8 @@ class BERTEntityExtractor(EntityExtractor):
 
 if __name__ == "__main__":
 
-    text = "Apple Inc. is a technology company based in Cupertino, California."
+    text = ("Apple Inc. is a technology company based in Cupertino, California. John Anderson used to work there. "
+            "Not sure, John still works there, but his brother Andy works there.")
     # # #
     # # #
     nlp = spacy.load("en_core_web_sm")

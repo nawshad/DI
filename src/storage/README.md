@@ -80,11 +80,11 @@ reusuable code from utils based on underlying Store Types:
     
   - Cases
     - case_id --pk
-    - user_id --fk ref Users(id) INDEXED, ON DELETE CASCADE  ?? (ensures an user's access to a specific case)
+    - user_id --fk ref Users(id) INDEXED, ON DELETE CASCADE  ?? (ensures a user's access to a specific case)
     - name
     - description
     - folder_path
-    - file_data ?? (not sure, may be place holder)
+    - file_data ?? (not sure, may be placeholder)
     - created_at
     - updated_at
     
