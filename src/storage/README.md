@@ -3,8 +3,9 @@
 reusuable code from utils based on underlying Store Types:
 
 ## Tables for DI
-  - DocStore:
+  - DocStore
     - doc_id --pk
+    - case_id --fk ref Cases(case_id)
     - doc_name
     - source_path
     - raw_content
