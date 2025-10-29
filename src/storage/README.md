@@ -87,6 +87,3 @@ reusuable code from utils based on underlying Store Types:
     - file_data ?? (not sure, may be placeholder)
     - created_at
     - updated_at
-    
-    
-  
