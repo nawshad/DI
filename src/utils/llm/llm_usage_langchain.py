@@ -149,31 +149,31 @@ def pydantic_output_parser_custom():
 if __name__ == "__main__":
     # LocalLLMs
     # llm = ChatOllama(model="llama3.1:8b", validate_model_on_init=True)
-    # template = """Question: {question}
-    #    Answer: Let's think step by step."""
-    # prompt = PromptTemplate.from_template(template)
+    template = """Question: {question}
+       Answer: Let's think step by step."""
+    prompt = PromptTemplate.from_template(template)
     #
     # chain = prompt | llm
     # question = "What is electroencephalography?"
     # print(chain.invoke({"question": question}))
     #
-    # # HF LLMs
-    # model_id = "gpt2"
-    # tokenizer = AutoTokenizer.from_pretrained(model_id)
-    # model = AutoModelForCausalLM.from_pretrained(model_id)
-    # pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=100)
-    # hf = HuggingFacePipeline(pipeline=pipe)
-    #
-    # chain = prompt | hf
-    # question = "What is electroencephalography?"
-    # print(chain.invoke({"question": question}))
-    #
+    # HF LLMs
+    model_id = "gpt2"
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=100)
+    hf = HuggingFacePipeline(pipeline=pipe)
 
-    # Structured LLM
-    # struct_output_with_chain()
-    # The following function only works with certain Langchain models , such as ChatOpenAI.
-    pydantic_output_parser()
-    pydantic_output_parser_custom()
+    chain = prompt | hf
+    question = "What is electroencephalography?"
+    print(chain.invoke({"question": question}))
+
+
+    # # Structured LLM
+    # # struct_output_with_chain()
+    # # The following function only works with certain Langchain models , such as ChatOpenAI.
+    # pydantic_output_parser()
+    # pydantic_output_parser_custom()
 
 
 
