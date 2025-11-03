@@ -6,17 +6,16 @@ type and any extra attributes). For stanza based methods, entity extraction
 and their extra attributes is done simultaneously.
 '''
 import warnings
+from abc import ABC, abstractmethod
 from typing import Dict
 import spacy
 import stanza
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
-
 # from transformers import AutoTokenizer, AutoModelForTokenClassification
 # from transformers import pipeline
 
-
-class EntityExtractor:
+class EntityExtractor(ABC):
     # Define generic variables initialization if required
     def __init__(self):
         pass
@@ -30,7 +29,8 @@ class EntityExtractor:
     # Generic Output processing applicable for all Extractors,
     # can be overridden inside the child class, or augmented
     # inside the child class, by calling it through super().
-    def output_processing(self, text: str)-> Dict[str,str]:
+    @abstractmethod
+    def extract(self, text: str)-> Dict[str,str]:
         pass
 
 
@@ -39,7 +39,7 @@ class SpacyEntityExtractor(EntityExtractor):
         super().__init__() # required to override parent attributes
         self.nlp_object = nlp_object
 
-    def output_processing(self, text: str)->Dict[str,str]:
+    def extract(self, text: str)->Dict[str,str]:
         print(f"Output processing Overridden here at "
               f"spacy based processing for: {self.nlp_object} for: {text}")
         doc = self.nlp_object(text)
@@ -54,7 +54,7 @@ class StanzaEntityExtractor(EntityExtractor):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
-    def output_processing(self, text: str)->Dict[str,str]:
+    def extract(self, text: str)->Dict[str,str]:
         print(f"Output processing Overridden here at "
               f"spacy based processing for: {self.nlp_object} for: {text}")
         doc = self.nlp_object(text)
@@ -69,7 +69,7 @@ class BERTEntityExtractor(EntityExtractor):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
-    def output_processing(self, text: str)->Dict[str,str]:
+    def extract(self, text: str)->Dict[str,str]:
         entity_attribs = {}
         entities = self.nlp_object(text)
         for entity in entities:
@@ -86,9 +86,10 @@ if __name__ == "__main__":
     )
 
     # Spacy based Entity Extraction
-    nlp = spacy.load("en_core_web_sm")
+    # nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.blank("en")
     spacEE = SpacyEntityExtractor(nlp_object=nlp)
-    print(f"Spacy output: {spacEE.output_processing(text=text)}")
+    print(f"Spacy output: {spacEE.extract(text=text)}")
 
 
     # BERT based Entity Extraction
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     )
 
     BertEE = BERTEntityExtractor(nlp_object=nlp)
-    print(f"BERT output: {BertEE.output_processing(text=text)}")
+    print(f"BERT output: {BertEE.extract(text=text)}")
 
     nlp = stanza.Pipeline(
         lang='en',
@@ -113,5 +114,5 @@ if __name__ == "__main__":
     )
 
     stanEE = StanzaEntityExtractor(nlp_object=nlp)
-    print(f"Stanza output: {stanEE.output_processing(text=text)}")
+    print(f"Stanza output: {stanEE.extract(text=text)}")
 

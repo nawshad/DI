@@ -42,4 +42,4 @@ if __name__ == "__main__":
     print(localLLM.input("Hi!").content)
 
     hfLocalLLM = HFLocalLLM(pretrained_model_name_or_path="gpt2")
-    print(localLLM.input("Hi!").content)
+    print(hfLocalLLM.input("Hi!"))
