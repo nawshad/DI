@@ -22,8 +22,9 @@ reusuable code from utils based on underlying Store Types:
     - art_id --pk
     - doc_id --fk ref DocStore(doc_id)
     - chunk_id
-    - raw_art_content
-    - art_content_text
+    - raw_art_content (?? chunked ??)
+    - art_content_text (?? chunked ??)
+    - caption
     
   - VectorStore
     - chunk_id --pk

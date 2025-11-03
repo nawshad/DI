@@ -86,8 +86,8 @@ if __name__ == "__main__":
     )
 
     # Spacy based Entity Extraction
-    # nlp = spacy.load("en_core_web_sm")
-    nlp = spacy.blank("en")
+    nlp = spacy.load("en_core_web_sm")
+    # nlp = spacy.blank("en")
     spacEE = SpacyEntityExtractor(nlp_object=nlp)
     print(f"Spacy output: {spacEE.extract(text=text)}")
 
