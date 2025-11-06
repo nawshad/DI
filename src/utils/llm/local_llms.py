@@ -9,9 +9,8 @@ from langchain_core.messages import AIMessage
 from langchain_huggingface import HuggingFacePipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
-from base_llm import BaseLLM
+from src.utils.llm.base_llm import BaseLLM
 import os
-import dotenv
 load_dotenv()
 
 

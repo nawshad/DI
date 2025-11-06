@@ -8,8 +8,12 @@ and their extra attributes is done simultaneously.
 import warnings
 from abc import ABC, abstractmethod
 from typing import Dict
+
 import spacy
+#import spacy
 import stanza
+
+
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
 # from transformers import AutoTokenizer, AutoModelForTokenClassification
@@ -104,13 +108,14 @@ if __name__ == "__main__":
 
     nlp = stanza.Pipeline(
         lang='en',
+        weights_only=False,
         use_gpu=False,
         processors=
         'tokenize,'
         'lemma,'
         'pos,'
         'ner,'
-        'coref'
+        'coref',
     )
 
     stanEE = StanzaEntityExtractor(nlp_object=nlp)

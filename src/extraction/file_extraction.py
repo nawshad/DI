@@ -218,6 +218,7 @@ def print_chunk(chunks, chunk_pos, chunker, tokenizer, console):
 def chunking_dl_doc_with_artifacts(chunker, tokenizer, dldoc, console):
     chunk_iter = chunker.chunk(dl_doc=dldoc)
     chunks = list(chunk_iter)
+    print(f"chunks: {chunks}")
     i, chunk = find_n_th_chunk_with_label(chunks, n=0, label=DocItemLabel.TABLE)
     print_chunk(
         chunks=chunks,
@@ -226,7 +227,6 @@ def chunking_dl_doc_with_artifacts(chunker, tokenizer, dldoc, console):
         tokenizer = tokenizer,
         console = console
     )
-
 
 
 def chunking_docfile(dldoc):
@@ -273,7 +273,10 @@ def main():
 
     # batch_file_extraction(data_folder, input_doc_paths)
 
-    file_path = data_folder + "/extracted_data/2023_UCR_Manual_EN_final.json"
+    # file_path = data_folder + "/extracted_data/2023_UCR_Manual_EN_final.json"
+
+    file_path = data_folder + "/extracted_data/Homicide_KG.json"
+
     with open(file_path, "r") as fp:
         doc_dict = json.loads(fp.read())
 

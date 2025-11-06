@@ -9,3 +9,8 @@ as possible.
 artifact store.
 2. Develop vector store from processed doc store raw data (which is likely to be pre-processed using NLP).
 3. Extract data for Triple Store.
+
+
+### Troubleshooting:
+ - Stanza (1.9.2) and Docling does not go well together, to enable stanza with docling do as follows:
+    - Change torch.load(), and set weights_only=False in line 56 of pretrained.py and line 301 of model.py

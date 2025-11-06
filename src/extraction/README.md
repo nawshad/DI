@@ -11,3 +11,4 @@
           - Advanced docling chunking with artifacts (table, image) serializers:
             - https://docling-project.github.io/docling/examples/advanced_chunking_and_serialization/#setup 
   - Optimization strategies for large scale file loading.
+
