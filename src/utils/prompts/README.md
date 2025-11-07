@@ -3,3 +3,4 @@
 - Also, pydantic classes for prompt output generation.
 - The basic idea is to have utility functions that helps to build
 LLM based NLP or other models easily.
+- See: https://www.kaggle.com/code/ksmooi/langchain-prompt-templates-quick-reference
