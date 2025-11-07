@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from langchain_core.prompts import ChatPromptTemplate
 from src.utils.llm.local_llms import LocalLLM
 
@@ -9,7 +11,6 @@ def with_struct_output_given_entity_all_triples(llm, doc, prompt_template, entit
             'subject':'subject name',
             'relationship': 'relationship name between subject and object',
             'object': 'object name',
-            #'sentence': 'sentence representing the triple'
         }
     ]}, method="json_mode")
 
@@ -24,7 +25,14 @@ def with_struct_output_given_entity_all_triples(llm, doc, prompt_template, entit
     return chain.invoke(prompt)
 
 
-def extract_zero_shot_kg_sans_entity_type(doc, llm, provided_relations):
+def key_given_value(dict: Dict[str, List[str]], value: str) -> str:
+    for key, values in dict.items():
+        if value in values:
+            return key
+    return ''
+
+
+def extract_zero_shot_kg_triples(doc, llm, provided_relations, provided_entities):
     # extract list of triples corresponding to a preprocessed_doc based on zero-shot LLMs.
     mid_tuple = "relationship"  # this does not make any difference if we would use "predicate" instead!
 
@@ -47,10 +55,12 @@ def extract_zero_shot_kg_sans_entity_type(doc, llm, provided_relations):
 
     # relationship_string = ""
     relationship_string = (', ').join(relations_list).strip(', ')
-    relationship_string = f"for the {mid_tuple}s: {relationship_string}"
+    relationship_string = f" Extract triples for the {mid_tuple}s: {relationship_string}"
     print(f"{mid_tuple} string: {relationship_string}")
 
-    trailing_text = ""  # "where, keys are subject, relationship and object and values are their values respectively."
+    entity_string = (', ').join(provided_entities).strip(', ')
+
+    trailing_text = f"Please return these triples for the following subject or objects: {entity_string}"  # "where, keys are subject, relationship and object and values are their values respectively."
     # The above does not work, because, the provided example is confused as variable names.
 
     prompt_template_triples = ChatPromptTemplate.from_messages(
@@ -60,9 +70,9 @@ def extract_zero_shot_kg_sans_entity_type(doc, llm, provided_relations):
                 f"{initiating_prompt}"
                 f"{relationship_string if relationship_string else ''} "
                 f"from the provided text only. Do not provide any {mid_tuple} between "
-                f"subject and object, which is not in the text. "
-                "Please return the triples in a list of json key, value pairs, which"
-                " looks like this: {triples_list_example}"
+                f"subject and object, which is not in the provided text. "
+                " Please return the triples in a list of json key, value pairs, which"
+                " looks like this: {triples_list_example} "
                 f"{trailing_text if trailing_text else ''}"
             ),
             ("human", "{text}"),
@@ -89,7 +99,19 @@ def extract_zero_shot_kg_sans_entity_type(doc, llm, provided_relations):
     )
 
     print(f"with struct output no given entity triples: {triple_list}")
-    return triple_list
+
+    filtered_triple_list = []
+
+    try:
+        for triple in triple_list['triples']:
+            print(f"triple: {triple}, {triple['subject'], triple['object'], triple['relationship']}")
+            if triple['subject'] or triple['object'] in provided_entities:
+                triple['relation_type'] = key_given_value(provided_relations, triple['relationship'])
+                filtered_triple_list.append(triple)
+    except Exception as e:
+        print(f"exception occured: {e}")
+
+    return filtered_triple_list
 
 
 if __name__ == "__main__":
@@ -100,11 +122,22 @@ if __name__ == "__main__":
     localLLM = LocalLLM(model="llama3.1:8b", model_provider="Ollama")
 
     provided_relations = {
-        'attributes': ['age', 'gender', 'address', 'profession'],
+        'attributes': ['age', 'gender', 'address', 'lives in', 'profession'],
         'criminal_activity': ['killed by', 'killed']
     }
 
-    triples = extract_zero_shot_kg_sans_entity_type(doc, llm=localLLM.model, provided_relations=provided_relations)
+    provided_entities = ["James McAndersen", "Ohio", "McAndersen", "John"]
+
+    triples = extract_zero_shot_kg_triples(
+        doc,
+        llm=localLLM.model,
+        provided_relations=provided_relations,
+        provided_entities=provided_entities
+    )
+
+    # Filter triples based on the presence of provided entities and relations. The entities
+    # will be captured from running spacy/core NLP on the chunk.
+    # return the triples with relationship type.
 
     print(f"Extracted triples: {triples}")
 
