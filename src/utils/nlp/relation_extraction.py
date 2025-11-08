@@ -1,117 +1,70 @@
-from typing import Dict, List
-
-from langchain_core.prompts import ChatPromptTemplate
+'''
+Here we construct the LLM based relation extraction
+with the help of re_prompt and local_llms.
+'''
+from src.utils.general.data_structure import key_given_value
 from src.utils.llm.local_llms import LocalLLM
+from src.utils.prompts.re_prompt import RelationExtractionPrompt
+from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
 
-def with_struct_output_given_entity_all_triples(llm, doc, prompt_template, entity_name, triples_list_example):
-    # llm = return_models_provided_name(llm_name=llm_model_name)
-
-    chain = llm.with_structured_output(schema={'triples':[{
-            'subject':'subject name',
-            'relationship': 'relationship name between subject and object',
-            'object': 'object name',
-        }
-    ]}, method="json_mode")
-
-    if entity_name:
-        prompt = prompt_template.invoke({"text": doc, "entity": entity_name, "triples_list_example": triples_list_example})
-        print(f"prompt in with struct ouput given entity {entity_name} all triples: {prompt}")
-
-    else:
-        prompt = prompt_template.invoke({"text": doc, "triples_list_example": triples_list_example})
-        print(f"prompt in with struct ouput given entity {entity_name} all triples: {prompt}")
-
-    return chain.invoke(prompt)
+class TripleLLM:
+    def __init__(self, llm, rePrompt, relations, entities, triples_list_schema):
+        self.llm = llm
+        self.re_prompt = rePrompt
+        self.entities = entities
+        self.relations = relations
+        self.relationship_string = ', '.join(self.relation_string()).strip(', ')
+        self.triples_list_schema = triples_list_schema #defines the output structure of the LLM output
+        self.entity_string = ', '.join(entities).strip(', ')
 
 
-def key_given_value(dict: Dict[str, List[str]], value: str) -> str:
-    for key, values in dict.items():
-        if value in values:
-            return key
-    return ''
+    def relation_string(self):
+        relations_list = []
+        for key, values in self.relations.items():
+            for value in values:
+                relations_list.append(value)
+        return relations_list
 
 
-def extract_zero_shot_kg_triples(doc, llm, provided_relations, provided_entities):
-    # extract list of triples corresponding to a preprocessed_doc based on zero-shot LLMs.
-    mid_tuple = "relationship"  # this does not make any difference if we would use "predicate" instead!
-
-    relations_list = []
-    for key, values in provided_relations.items():
-        for value in values:
-            relations_list.append(value)
-
-    print(f"relations: {relations_list}")
-
-    initiating_prompt = ("You are a networked intelligence helping a human track knowledge triples about all "
-                         "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
-                         "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
-                         #f"and their corresponding sentence 
-                         f"from the text. "
-                         f"A knowledge triple is a clause that contains a subject, a {mid_tuple}, and an object. "
-                         f"The subject is the entity being described, the {mid_tuple} is the property of the subject that is being "
-                         "described, and the object is the value of the property.")
+    def prompt_chain(self):
+        chain = self.llm.with_structured_output(schema=zeroshot_triple_schema, method="json_mode")
+        return chain
 
 
-    # relationship_string = ""
-    relationship_string = (', ').join(relations_list).strip(', ')
-    relationship_string = f" Extract triples for the {mid_tuple}s: {relationship_string}"
-    print(f"{mid_tuple} string: {relationship_string}")
+    def prompt_grounding(self, text):
+        gr_prompt = self.re_prompt.final_prompt().invoke({
+            'init_prompt': self.re_prompt.init_prompt,
+            'relationship_string': self.relationship_string,
+            'triples_list_schema': self.triples_list_schema,
+            'entity_string' : self.entity_string,
+            'text': text
+        })
 
-    entity_string = (', ').join(provided_entities).strip(', ')
+        print(f"grounded prompt: {gr_prompt}")
+        return gr_prompt
 
-    trailing_text = f"Please return these triples for the following subject or objects: {entity_string}"  # "where, keys are subject, relationship and object and values are their values respectively."
-    # The above does not work, because, the provided example is confused as variable names.
 
-    prompt_template_triples = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                f"{initiating_prompt}"
-                f"{relationship_string if relationship_string else ''} "
-                f"from the provided text only. Do not provide any {mid_tuple} between "
-                f"subject and object, which is not in the provided text. "
-                " Please return the triples in a list of json key, value pairs, which"
-                " looks like this: {triples_list_example} "
-                f"{trailing_text if trailing_text else ''}"
-            ),
-            ("human", "{text}"),
-        ]
-    )
+    def filter_triples(self, triples_list):
+        filtered_triple_list = []
+        try:
+            for triple in triples_list['triples']:
+                print(f"triple: {triple}, {triple['subject'], triple['object'], triple['relationship']}")
+                if triple['subject'] or triple['object'] in self.entities:
+                    triple['relation_type'] = key_given_value(self.relations, triple['relationship'])
+                    filtered_triple_list.append(triple)
+        except Exception as e:
+            print(f"exception occured: {e}")
+        return filtered_triple_list
 
-    triples_list_example = {
-        'triples': [
-            {
-                'subject': 'subject name',
-                f"{mid_tuple}": 'relationship name',
-                'object': 'object name',
-                #'sentence': 'sentence representing the triple' #to use this uncomment the portion in the initializing prompt.
-             }
-        ]
-    }
 
-    triple_list = with_struct_output_given_entity_all_triples(
-        llm,
-        doc,
-        prompt_template_triples,
-        entity_name='',
-        triples_list_example=triples_list_example
-    )
+    def extract(self, text, _filter=True):
+        triples_list = self.prompt_chain().invoke(self.prompt_grounding(text))
+        print(f"triples_list: {triples_list}")
+        if _filter:
+            return self.filter_triples(triples_list=triples_list)
+        return triples_list
 
-    print(f"with struct output no given entity triples: {triple_list}")
-
-    filtered_triple_list = []
-
-    try:
-        for triple in triple_list['triples']:
-            print(f"triple: {triple}, {triple['subject'], triple['object'], triple['relationship']}")
-            if triple['subject'] or triple['object'] in provided_entities:
-                triple['relation_type'] = key_given_value(provided_relations, triple['relationship'])
-                filtered_triple_list.append(triple)
-    except Exception as e:
-        print(f"exception occured: {e}")
-
-    return filtered_triple_list
 
 
 if __name__ == "__main__":
@@ -119,7 +72,7 @@ if __name__ == "__main__":
            "good baseball player. He is 32 years old. McAndersen was "
            "directly related to the homicide case of John.")
 
-    localLLM = LocalLLM(model="llama3.1:8b", model_provider="Ollama")
+    llama31 = LocalLLM(model="llama3.1:8b", model_provider="Ollama")
 
     provided_relations = {
         'attributes': ['age', 'gender', 'address', 'lives in', 'profession'],
@@ -128,20 +81,26 @@ if __name__ == "__main__":
 
     provided_entities = ["James McAndersen", "Ohio", "McAndersen", "John"]
 
-    triples = extract_zero_shot_kg_triples(
-        doc,
-        llm=localLLM.model,
-        provided_relations=provided_relations,
-        provided_entities=provided_entities
+
+    init_prompt = (
+        "You are a networked intelligence helping a human track knowledge triples about all "
+         "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
+         "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
+         f"from the text. "
+         f"A knowledge triple is a clause that contains a subject, a relationship, and an object. "
+         f"The subject is the entity being described, the relationship is the property of the subject that is being "
+         "described, and the object is the value of the property."
     )
 
-    # Filter triples based on the presence of provided entities and relations. The entities
-    # will be captured from running spacy/core NLP on the chunk.
-    # return the triples with relationship type.
+    rePrompt = RelationExtractionPrompt(init_prompt = init_prompt)
+    print(rePrompt.final_prompt())
 
-    print(f"Extracted triples: {triples}")
+    tripleLLM = TripleLLM(
+        llm=llama31.model,
+        rePrompt=rePrompt,
+        relations=provided_relations,
+        entities=provided_entities,
+        triples_list_schema=zeroshot_triple_schema
+    )
 
-
-
-
-
+    print(f"Extracted triples: {tripleLLM.extract(doc)}")

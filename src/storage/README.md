@@ -1,47 +1,59 @@
 ### TODO:
 - Code for all kinds of Stores Creation, as follows, also, uses
 reusuable code from utils based on underlying Store Types:
+- Number in parentheses beside the name of the Table is the order of processing. 
 
 ## Tables for DI
-  - DocStore
-    - doc_id --pk
-    - case_id --fk ref Cases(case_id)
-    - doc_name
-    - source_path
-    - raw_content
-    - raw_text
+  - DocStore (1)
+    - doc_id --pk 
+    - case_id --fk ref Cases(case_id) 
+    - doc_name (unique name of a doc based on location) 
+    - source_path (exact doc path) 
+    - raw_content (docling object) 
     - file_type
-    - coref_resolved_text
-    - summary
-    - entity_attribs
-    - entity_doc_rel
-    - entity_assoc
-    - upload_timestamp
+    - raw_text 
+    - summary -- 2 (update from chunk summaries)
+    - timestamp
+
+  - EntityStore (1/2)
+    - entity_id --pk
+    - doc_id --fk ref DocStore(doc_id)
+    - entity_name
+    - entity_type
+    - entity_extra_attribs 
+    - entity_doc_rel ({'entity' : 'doc text related to entity'})
+    - entity_assoc ({'related_entities in descending order of relevance from NE association' : [])
+    - timestamp
     
-  - ArtifactStore
+  - ArtifactStore (1)
     - art_id --pk
     - doc_id --fk ref DocStore(doc_id)
     - chunk_id
-    - raw_art_content (?? chunked ??)
-    - art_content_text (?? chunked ??)
-    - caption
+    - raw_art_content (from docling chunk)
+    - art_content_text (from docling chunk)
+    - caption (if available)
+    - timestamp
     
-  - VectorStore
+  - VectorStore (1)
     - chunk_id --pk
     - doc_id --fk ref DocStore(doc_id)
-    - chunk_content_text
+    - art_ids --fk ref ArtStore(art_id)
+    - chunk_content_text / chunk_content_coref text (we can use the chunks with entities only for this processing)
     - summary
+    - timestamp
     
-  - TripleStore
+  - TripleStore (1/2)
     - triple_id --pk
     - chunk_id --fk ref VectorStore(chunk_id)
     - doc_id --fk ref DocStore(doc_id)
+    - subject_id --fk ref EntityStore(entity_id)
     - subject
     - relationship
+    - object_id --fk ref EntityStore(entity_id)
     - object
     - llm_used
     - score
-    - extraction_timestamp
+    - timestamp
 
   - ApplicationLogs:
     - id --pk

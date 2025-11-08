@@ -13,7 +13,10 @@ from dotenv import load_dotenv
 
 from src.utils.llm.local_llms import LocalLLM
 from src.utils.nlp.entity_extraction import StanzaEntityExtractor, SpacyEntityExtractor
-from src.utils.nlp.relation_extraction import extract_zero_shot_kg_triples
+from src.utils.nlp.outdated.relation_extraction import extract_zero_shot_kg_triples
+from src.utils.nlp.relation_extraction import TripleLLM
+from src.utils.prompts.re_prompt import RelationExtractionPrompt
+from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
 load_dotenv()
 
@@ -45,11 +48,11 @@ if __name__ == "__main__":
         doc = json.loads(fp.read())
 
     # Recreate the DoclingDocument object
-    dldoc = DoclingDocument.model_validate(doc)
+    dlDoc = DoclingDocument.model_validate(doc)
 
     # 2. Chunk the document
     chunker = HybridChunker()
-    chunks = list(chunker.chunk(dldoc))
+    chunks = list(chunker.chunk(dlDoc))
 
     nlp = stanza.Pipeline(
         lang='en',
@@ -93,6 +96,18 @@ if __name__ == "__main__":
 
     entity_types = ['ORG', 'PERSON', 'LOC', 'GPE']
 
+    init_prompt = (
+        "You are a networked intelligence helping a human track knowledge triples about all "
+        "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
+        "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
+        f"from the text. "
+        f"A knowledge triple is a clause that contains a subject, a relationship, and an object. "
+        f"The subject is the entity being described, the relationship is the property of the subject that is being "
+        "described, and the object is the value of the property."
+    )
+
+    rePrompt = RelationExtractionPrompt(init_prompt=init_prompt)
+
     for i, chunk in enumerate(chunks):
         # Access the metadata for each chunk
         print(f"chunk text: {chunk.text}")
@@ -100,25 +115,33 @@ if __name__ == "__main__":
 
         if chunk_entities: # reducing formatting errors, needs to be handled inside the function as well!
             print(f"chunk entities: {chunk_entities}")
-            triples = extract_zero_shot_kg_triples(
-                chunk.text,
+            # triples = extract_zero_shot_kg_triples(
+            #     chunk.text,
+            #     llm=localLLM.model,
+            #     provided_relations=provided_relations,
+            #     provided_entities = chunk_entities
+            # )
+
+            tripleLLM = TripleLLM(
                 llm=localLLM.model,
-                provided_relations=provided_relations,
-                provided_entities = chunk_entities
+                rePrompt=rePrompt,
+                relations=provided_relations,
+                entities=chunk_entities,
+                triples_list_schema=zeroshot_triple_schema
             )
-            print(f"triples: {triples}")
+            print(f"triples: {tripleLLM.extract(chunk.text)}")
 
         for item_ref in chunk.meta.doc_items:
             if item_ref.label == DocItemLabel.TABLE:
                 # Retrieve the original TableItem
-                table_item = find_item_by_ref(dldoc, item_ref.self_ref)
+                table_item = find_item_by_ref(dlDoc, item_ref.self_ref)
                 if table_item and isinstance(table_item, TableItem):
-                    print(f"Table item: {table_item.export_to_markdown(doc=dldoc)}")
+                    print(f"Table item: {table_item.export_to_markdown(doc=dlDoc)}")
 
             if item_ref.label == DocItemLabel.PICTURE:
                 # Retrieve the original TableItem
-                pic_item = find_item_by_ref(dldoc, item_ref.self_ref)
+                pic_item = find_item_by_ref(dlDoc, item_ref.self_ref)
                 if pic_item and isinstance(pic_item, PictureItem):
-                    print(f"Image item: {pic_item.export_to_markdown(doc=dldoc)}")
+                    print(f"Image item: {pic_item.export_to_markdown(doc=dlDoc)}")
 
 

@@ -28,7 +28,12 @@ class HFLocalLLM(BaseLLM):
         super().__init__()
         self.tokenizer = AutoTokenizer.from_pretrained(**kwargs)
         self.model = AutoModelForCausalLM.from_pretrained(**kwargs)
-        pipe = pipeline(task="text-generation", model=self.model, tokenizer=self.tokenizer, max_new_tokens=100)
+        pipe = pipeline(
+            task="text-generation",
+            model=self.model,
+            tokenizer=self.tokenizer,
+            max_new_tokens=100
+        )
         self.hf = HuggingFacePipeline(pipeline=pipe)
 
     def input(self, text:str) -> str:
