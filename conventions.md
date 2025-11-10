@@ -4,6 +4,8 @@
 strictly use Typing for that class.
   - All the sub-classes will inherit the basic functions from the base class
   but do specific stuffs as needed.
+  - Use debug_decorator when needed, by default we use it in overridden methods in
+  sub-classes.
 
 ### Naming Conventions:
 - Class names will be CapsLocked
