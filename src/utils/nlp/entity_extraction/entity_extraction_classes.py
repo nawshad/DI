@@ -5,11 +5,11 @@ a text input and provides a standardized text output (entities with their
 type and any extra attributes). For stanza based methods, entity extraction
 and their extra attributes is done simultaneously.
 '''
-
 from typing import Dict, List
 import spacy
 import stanza
 from transformers import pipeline
+from src.utils.debug.decorators import debug_func_decorator
 from src.utils.nlp.entity_extraction.base_entity_extractor import BaseEntityExtractor
 
 class SpacyEntityExtractor(BaseEntityExtractor):
@@ -17,9 +17,10 @@ class SpacyEntityExtractor(BaseEntityExtractor):
         super().__init__() # required to override parent attributes
         self.nlp_object = nlp_object
 
-    def extract(self, text: str, entity_types: List)->Dict[str,str]:
-        print(f"Output processing Overridden here at "
-              f"spacy based processing for: {self.nlp_object} for: {text}")
+    @debug_func_decorator
+    def extract(self, text: str, entity_types: List):
+        # print(f"Output processing Overridden here at "
+        #       f"spacy based processing for: {self.nlp_object} for: {text}")
         doc = self.nlp_object(text)
         entity_attribs = {}
         for ent in doc.ents:
@@ -33,9 +34,10 @@ class StanzaEntityExtractor(BaseEntityExtractor):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
-    def extract(self, text: str, entity_types: List)->Dict[str,str]:
-        print(f"Output processing Overridden here at "
-              f"spacy based processing for: {self.nlp_object} for: {text}")
+    @debug_func_decorator
+    def extract(self, text: str, entity_types: List):
+        # print(f"Output processing Overridden here at "
+        #       f"spacy based processing for: {self.nlp_object} for: {text}")
         doc = self.nlp_object(text)
         entity_attribs = {}
         for ent in doc.ents:
@@ -49,7 +51,8 @@ class BERTEntityExtractor(BaseEntityExtractor):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
-    def extract(self, text: str, entity_types: List)->Dict[str,str]:
+    @debug_func_decorator
+    def extract(self, text: str, entity_types: List):
         entity_attribs = {}
         entities = self.nlp_object(text)
         for entity in entities:

@@ -6,6 +6,8 @@ from typing import List, Any, Sequence
 from langchain_core.messages import BaseMessage
 from langchain_core.prompt_values import PromptValue
 from langchain_core.runnables import Runnable
+
+from src.utils.debug.decorators import debug_func_decorator
 from src.utils.general.data_structure_utils import key_given_value
 from src.utils.llm.local_llms import LocalLLM
 from src.utils.nlp.relation_extraction.base_triple_extractor import BaseTripleExtractor
@@ -65,6 +67,7 @@ class LLMTripleExtractor(BaseTripleExtractor):
             print(f"exception occured: {e}")
         return filtered_triple_list
 
+    @debug_func_decorator
     def extract(self, text, _filter=True):
         triples_list = self.prompt_chain().invoke(self.prompt_grounding(text))
         print(f"triples_list: {triples_list}")
@@ -107,7 +110,7 @@ def test():
     )
 
     rePrompt = RelationExtractionPrompt(init_prompt=init_prompt)
-    print(rePrompt.final_prompt())
+    print(f"rePrompt final_prompt(): {rePrompt.final_prompt()}")
 
     llmTriple = LLMTripleExtractor(
         llm=llama31.model,

@@ -30,6 +30,7 @@ above provided methods.
 Other libs:
 - Gensim has its own summarization
 '''
+from src.utils.debug.decorators import debug_func_decorator
 from src.utils.nlp.summarization.base_summarizer import BaseSummarizer
 
 
@@ -37,5 +38,6 @@ class LLMSummarzier(BaseSummarizer):
     def __init__(self):
         super().__init__()
 
+    @debug_func_decorator
     def summarize(self):
         pass

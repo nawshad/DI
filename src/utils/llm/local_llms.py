@@ -8,6 +8,7 @@ from langchain.chat_models import init_chat_model
 from langchain_core.messages import AIMessage
 from langchain_huggingface import HuggingFacePipeline
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from src.utils.debug.decorators import debug_func_decorator
 from src.utils.llm.base_llm import BaseLLM
 load_dotenv()
 
@@ -17,6 +18,7 @@ class LocalLLM(BaseLLM):
         super().__init__()
         self.model = init_chat_model(**kwargs)
 
+    @debug_func_decorator
     def input(self, text:str) -> AIMessage:
         return self.model.invoke(text)
 
@@ -34,6 +36,7 @@ class HFLocalLLM(BaseLLM):
         )
         self.hf = HuggingFacePipeline(pipeline=pipe)
 
+    @debug_func_decorator
     def input(self, text:str) -> str:
         return self.hf.invoke(text)
 
