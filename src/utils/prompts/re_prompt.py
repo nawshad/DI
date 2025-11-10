@@ -3,7 +3,7 @@ from src.utils.prompts.base_prompt import BasePrompt
 
 
 class RelationExtractionPrompt(BasePrompt):
-    def __init__(self, init_prompt):
+    def __init__(self, init_prompt: str):
         super().__init__()
         self.init_prompt  = init_prompt
 

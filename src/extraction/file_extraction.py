@@ -215,7 +215,7 @@ def print_chunk(chunks, chunk_pos, chunker, tokenizer, console):
 
 
 
-def chunking_dl_doc_with_artifacts(chunker, tokenizer, dldoc, console):
+def chunking_dldoc_with_artifacts(chunker, tokenizer, dldoc, console):
     chunk_iter = chunker.chunk(dl_doc=dldoc)
     chunks = list(chunk_iter)
     print(f"chunks: {chunks}")
@@ -229,7 +229,7 @@ def chunking_dl_doc_with_artifacts(chunker, tokenizer, dldoc, console):
     )
 
 
-def chunking_docfile(dldoc):
+def chunking_doc(dldoc):
     '''
     given a dldoc it chunks it and prints the chunks.
     :param dldoc:
@@ -293,9 +293,9 @@ def test():
         tokenizer=AutoTokenizer.from_pretrained(EMBED_MODEL_ID),
     )
     chunker = HybridChunker(tokenizer=tokenizer)
-    chunking_dl_doc_with_artifacts(chunker, tokenizer, dldoc, console)
+    chunking_dldoc_with_artifacts(chunker, tokenizer, dldoc, console)
 
-    #chunking_docfile(dldoc)
+    #chunking_doc(dldoc)
 
 
 if __name__ == "__main__":

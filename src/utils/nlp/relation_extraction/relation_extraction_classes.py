@@ -2,7 +2,11 @@
 Here we construct the LLM based relation extraction
 with the help of re_prompt and local_llms.
 '''
-from src.utils.general.data_structure import key_given_value
+from typing import List, Any, Sequence
+from langchain_core.messages import BaseMessage
+from langchain_core.prompt_values import PromptValue
+from langchain_core.runnables import Runnable
+from src.utils.general.data_structure_utils import key_given_value
 from src.utils.llm.local_llms import LocalLLM
 from src.utils.nlp.relation_extraction.base_triple_extractor import BaseTripleExtractor
 from src.utils.prompts.re_prompt import RelationExtractionPrompt
@@ -20,21 +24,21 @@ class LLMTripleExtractor(BaseTripleExtractor):
         self.triples_list_schema = triples_list_schema #defines the output structure of the LLM output
         self.entity_string = ', '.join(entities).strip(', ')
 
-    def relation_string(self):
+    def relation_string(self) -> List:
         relations_list = []
         for key, values in self.relations.items():
             for value in values:
                 relations_list.append(value)
         return relations_list
 
-    def prompt_chain(self):
+    def prompt_chain(self) -> Runnable[PromptValue | str | Sequence[BaseMessage | list[str] | tuple[str, str] | str | dict[str, Any]], dict | Any]:
         chain = self.llm.with_structured_output(
             schema=zeroshot_triple_schema,
             method="json_mode"
         )
         return chain
 
-    def prompt_grounding(self, text):
+    def prompt_grounding(self, text: str) -> str:
         gr_prompt = self.re_prompt.final_prompt().invoke({
             'init_prompt': self.re_prompt.init_prompt,
             'relationship_string': self.relationship_string,
@@ -78,8 +82,8 @@ def test():
     # model_name = "smollm:latest"
     # model_name = "tinyllama:latest"
     # model_name = "deepseek-r1:7b"
-    # model_name = "llama3.1:8b"
-    model_name = "deepseek-r1:8b"
+    model_name = "llama3.1:8b"
+    # model_name = "deepseek-r1:8b"
 
     llama31 = LocalLLM(model=model_name, model_provider="Ollama")
 
