@@ -1,9 +1,5 @@
 import json
-
-import spacy
 import stanza
-from docling.document_converter import DocumentConverter
-from docling_core.transforms.chunker import HierarchicalChunker
 from docling_core.transforms.chunker.hybrid_chunker import HybridChunker
 from docling_core.types.doc import PictureItem
 from docling_core.types.doc.labels import DocItemLabel
@@ -29,7 +25,6 @@ if __name__ == "__main__":
     data_folder = os.environ["DATA_ROOT"]
 
     # batch_file_extraction(data_folder, input_doc_paths)
-
     # file_path = data_folder + "/extracted_data/2023_UCR_Manual_EN_final.json"
 
     file_path = data_folder + "/extracted_data/Homicide_KG.json"

@@ -12,4 +12,45 @@
             - https://docling-project.github.io/docling/examples/advanced_chunking_and_serialization/#setup 
   - Optimization strategies for large scale file loading.
     - Parallel batch processing.
+  
+### Docling Wisdom:
+-  See the docling parsed json for more info:
+-  A document object has following major components:
+  - Root
+    - schema name
+    - version
+    - name: <file_name>
+  - origin
+    - mimetype
+    - binary_hash
+    - filename
+  - furniture 
+    - Not sure what are its children, seems empty everytime!
+  - body
+    - Under root, no parent.
+    - Any of the following items below can be its children.
+  - groups
+     - Usually body is its parent.
+     - This is the grouping of different elements below.
+  - texts
+    - Usually body is its parent.
+    - This is the text elements
+    - has provenance based on page no and location in the page
+  - pictures
+    - Usually body is its parent.
+    - This is the picture elements
+    - has provenance based on page no and location in the page
+  - tables
+    - Usually body is its parent.
+    - This is the picture elements
+    - has provenance based on page no and location in the page
+  - key_value_items
+    - Not sure yet what is it?
+  - form_items
+    - Not sure yet what is it?
+  - pages
+    - images of each page if it was a pdf file, otherwise this is empty.
+
+- When a document is chunked, it is chunked based on grounded (text or otherwise)
+chunks with reference to each elements which are referenced from the chunk.
 
