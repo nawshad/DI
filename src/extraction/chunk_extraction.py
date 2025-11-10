@@ -11,23 +11,14 @@ from docling_core.types.doc.document import TableItem, DoclingDocument
 import os
 from dotenv import load_dotenv
 
+from src.utils.docling.doc_extraction_utils import find_item_by_ref
 from src.utils.llm.local_llms import LocalLLM
-from src.utils.nlp.entity_extraction import StanzaEntityExtractor, SpacyEntityExtractor
-from src.utils.nlp.outdated.relation_extraction import extract_zero_shot_kg_triples
-from src.utils.nlp.relation_extraction import TripleLLM
+from src.utils.nlp.entity_extraction.entity_extraction_classes import StanzaEntityExtractor
+from src.utils.nlp.relation_extraction.relation_extraction_classes import LLMTripleExtractor
 from src.utils.prompts.re_prompt import RelationExtractionPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
 load_dotenv()
-
-
-# A helper function to find the actual item in the main document
-def find_item_by_ref(doc, ref_id):
-    print(f"ref_id: {ref_id}")
-    for item, _ in doc.iterate_items():
-        if hasattr(item, 'self_ref') and item.self_ref == ref_id:
-            return item
-    return None
 
 
 if __name__ == "__main__":
@@ -115,21 +106,15 @@ if __name__ == "__main__":
 
         if chunk_entities: # reducing formatting errors, needs to be handled inside the function as well!
             print(f"chunk entities: {chunk_entities}")
-            # triples = extract_zero_shot_kg_triples(
-            #     chunk.text,
-            #     llm=localLLM.model,
-            #     provided_relations=provided_relations,
-            #     provided_entities = chunk_entities
-            # )
 
-            tripleLLM = TripleLLM(
+            llmTriple = LLMTripleExtractor(
                 llm=localLLM.model,
                 rePrompt=rePrompt,
                 relations=provided_relations,
                 entities=chunk_entities,
                 triples_list_schema=zeroshot_triple_schema
             )
-            print(f"triples: {tripleLLM.extract(chunk.text)}")
+            print(f"triples: {llmTriple.extract(chunk.text)}")
 
         for item_ref in chunk.meta.doc_items:
             if item_ref.label == DocItemLabel.TABLE:

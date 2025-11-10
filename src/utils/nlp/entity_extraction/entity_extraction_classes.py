@@ -5,40 +5,14 @@ a text input and provides a standardized text output (entities with their
 type and any extra attributes). For stanza based methods, entity extraction
 and their extra attributes is done simultaneously.
 '''
-import warnings
-from abc import ABC, abstractmethod
+
 from typing import Dict, List
-
 import spacy
-#import spacy
 import stanza
+from transformers import pipeline
+from src.utils.nlp.entity_extraction.base_entity_extractor import BaseEntityExtractor
 
-
-from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
-
-# from transformers import AutoTokenizer, AutoModelForTokenClassification
-# from transformers import pipeline
-
-class EntityExtractor(ABC):
-    # Define generic variables initialization if required
-    def __init__(self):
-        pass
-
-    # Generic Input processing applicable for all Extractors,
-    # can be overridden inside the child class, or augmented
-    # inside the child class, by calling it through super().
-    def input_processing(self, text:str) -> str:
-        pass
-
-    # Generic Output processing applicable for all Extractors,
-    # can be overridden inside the child class, or augmented
-    # inside the child class, by calling it through super().
-    @abstractmethod
-    def extract(self, text: str, entity_types: List)-> Dict[str,str]:
-        pass
-
-
-class SpacyEntityExtractor(EntityExtractor):
+class SpacyEntityExtractor(BaseEntityExtractor):
     def __init__(self, nlp_object):
         super().__init__() # required to override parent attributes
         self.nlp_object = nlp_object
@@ -54,7 +28,7 @@ class SpacyEntityExtractor(EntityExtractor):
         return entity_attribs
 
 
-class StanzaEntityExtractor(EntityExtractor):
+class StanzaEntityExtractor(BaseEntityExtractor):
     def __init__(self, nlp_object):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
@@ -70,7 +44,7 @@ class StanzaEntityExtractor(EntityExtractor):
         return entity_attribs
 
 
-class BERTEntityExtractor(EntityExtractor):
+class BERTEntityExtractor(BaseEntityExtractor):
     def __init__(self, nlp_object):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
@@ -84,7 +58,7 @@ class BERTEntityExtractor(EntityExtractor):
         return entity_attribs
 
 
-if __name__ == "__main__":
+def test():
     text = (
         "Apple Inc. is a technology company based in "
         "Cupertino, California. John Anderson used to work there. "
@@ -95,11 +69,9 @@ if __name__ == "__main__":
     entity_types = ['ORG', 'PERSON', 'LOC', 'GPE']
 
     # Spacy based Entity Extraction
-    nlp = spacy.load("en_core_web_sm")
-    # nlp = spacy.blank("en")
+    nlp = spacy.load("en_core_web_sm")     # nlp = spacy.blank("en")
     spacEE = SpacyEntityExtractor(nlp_object=nlp)
     print(f"Spacy output: {spacEE.extract(text=text, entity_types=entity_types)}")
-
 
     # BERT based Entity Extraction
     nlp = pipeline(
@@ -126,3 +98,6 @@ if __name__ == "__main__":
     stanEE = StanzaEntityExtractor(nlp_object=nlp)
     print(f"Stanza output: {stanEE.extract(text=text, entity_types=entity_types)}")
 
+
+if __name__ == "__main__":
+   test()

@@ -4,12 +4,14 @@ with the help of re_prompt and local_llms.
 '''
 from src.utils.general.data_structure import key_given_value
 from src.utils.llm.local_llms import LocalLLM
+from src.utils.nlp.relation_extraction.base_triple_extractor import BaseTripleExtractor
 from src.utils.prompts.re_prompt import RelationExtractionPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
 
-class TripleLLM:
+class LLMTripleExtractor(BaseTripleExtractor):
     def __init__(self, llm, rePrompt, relations, entities, triples_list_schema):
+        super().__init__()
         self.llm = llm
         self.re_prompt = rePrompt
         self.entities = entities
@@ -51,7 +53,7 @@ class TripleLLM:
                 print(f"triple: {triple}, {triple['subject'], triple['object'], triple['relationship']}")
                 metadata = {}
                 if triple['subject'] or triple['object'] in self.entities:
-                    metadata['relation_type'] = key_given_value(self.relations, triple['relationship'])
+                    metadata['relation_type'] = key_given_value(self.relations, triple['relationship'].strip())
                     metadata['llm_used'] = self.llm.model
                     triple['metadata'] = metadata
                     filtered_triple_list.append(triple)
@@ -72,31 +74,38 @@ def test():
            "good baseball player. He is 32 years old. McAndersen was "
            "directly related to the homicide case of John.")
 
-    llama31 = LocalLLM(model="llama3.1:8b", model_provider="Ollama")
+
+    # model_name = "smollm:latest"
+    # model_name = "tinyllama:latest"
+    # model_name = "deepseek-r1:7b"
+    # model_name = "llama3.1:8b"
+    model_name = "deepseek-r1:8b"
+
+    llama31 = LocalLLM(model=model_name, model_provider="Ollama")
 
     print(f"llama31 attributes: {llama31.model}")
 
     provided_relations = {
-        'attributes': ['age', 'gender', 'address', 'lives in', 'profession'],
-        'criminal_activity': ['killed by', 'killed']
+        'attributes': ['age', 'gender', 'address', "lives in", 'profession'],
+        'criminal_activity': ["killed by", 'killed']
     }
 
-    provided_entities = ["James McAndersen", "Ohio", "McAndersen", "John"]
+    provided_entities = ["James McAndersen", 'Ohio', "McAndersen", 'John']
 
     init_prompt = (
         "You are a networked intelligence helping a human track knowledge triples about all "
         "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
         "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
-        f"from the text. "
-        f"A knowledge triple is a clause that contains a subject, a relationship, and an object. "
-        f"The subject is the entity being described, the relationship is the property of the subject that is being "
+        "from the text. "
+        "A knowledge triple is a clause that contains a subject, a relationship, and an object. "
+        "The subject is the entity being described, the relationship is the property of the subject that is being "
         "described, and the object is the value of the property."
     )
 
     rePrompt = RelationExtractionPrompt(init_prompt=init_prompt)
     print(rePrompt.final_prompt())
 
-    tripleLLM = TripleLLM(
+    llmTriple = LLMTripleExtractor(
         llm=llama31.model,
         rePrompt=rePrompt,
         relations=provided_relations,
@@ -104,7 +113,7 @@ def test():
         triples_list_schema=zeroshot_triple_schema
     )
 
-    print(f"Extracted triples: {tripleLLM.extract(doc)}")
+    print(f"Extracted triples: {llmTriple.extract(doc)}")
 
 
 if __name__ == "__main__":

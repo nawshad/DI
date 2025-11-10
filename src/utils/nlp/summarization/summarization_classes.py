@@ -30,3 +30,12 @@ above provided methods.
 Other libs:
 - Gensim has its own summarization
 '''
+from src.utils.nlp.summarization.base_summarizer import BaseSummarizer
+
+
+class LLMSummarzier(BaseSummarizer):
+    def __init__(self):
+        super().__init__()
+
+    def summarize(self):
+        pass
