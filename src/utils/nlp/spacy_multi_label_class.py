@@ -13,15 +13,17 @@ model for any categories and therefore categorize
 a document.
 '''
 
-if __name__ == "__main__":
+def multi_label_classification():
     # 1. Define your training data
     # Each entry is a tuple of (text, dictionary of labels)
     # Labels are represented as a dictionary where keys are category names and values are booleans.
     TRAIN_DATA = [
-        ("This movie is a fantastic sci-fi thriller with great acting.", {"SCI_FI": True, "THRILLER": True, "COMEDY": False}),
+        ("This movie is a fantastic sci-fi thriller with great acting.",
+         {"SCI_FI": True, "THRILLER": True, "COMEDY": False}),
         ("A hilarious comedy that will make you laugh out loud.", {"SCI_FI": False, "THRILLER": False, "COMEDY": True}),
         ("A deep philosophical drama, but a bit slow-paced.", {"DRAMA": True, "PHILOSOPHY": True, "COMEDY": False}),
-        ("This film has no clear genre, just a confusing mess.", {"SCI_FI": False, "THRILLER": False, "COMEDY": False, "DRAMA": False, "PHILOSOPHY": False}),
+        ("This film has no clear genre, just a confusing mess.",
+         {"SCI_FI": False, "THRILLER": False, "COMEDY": False, "DRAMA": False, "PHILOSOPHY": False}),
         ("An action-packed thriller with stunning visuals.", {"THRILLER": True, "ACTION": True, "SCI_FI": False}),
         ("A thought-provoking sci-fi masterpiece.", {"SCI_FI": True, "PHILOSOPHY": True, "DRAMA": False}),
     ]
@@ -64,3 +66,6 @@ if __name__ == "__main__":
     print("Predicted Categories:")
     for category, score in doc_2.cats.items():
         print(f"- {category}: {score:.4f}")
+
+if __name__ == "__main__":
+    multi_label_classification()

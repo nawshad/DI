@@ -132,10 +132,14 @@ def pydantic_output_parser_custom():
         matches = re.findall(pattern, text, re.DOTALL)
 
         # Return the list of matched JSON strings, stripping any leading or trailing whitespace
+
         try:
-            return [json.loads(match.strip()) for match in matches]
+            json_extract = [json.loads(match.strip()) for match in matches]
         except Exception:
             raise ValueError(f"Failed to parse: {message}")
+
+        return json_extract
+
 
     query = "Anna is 23 years old and she is 6 feet tall"
 

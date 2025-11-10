@@ -252,7 +252,7 @@ def chunking_docfile(dldoc):
         print()
 
 
-def main():
+def test():
     logging.basicConfig(level=logging.INFO)
     console = Console(
         width=200,  # for getting Markdown tables rendered nicely
@@ -287,7 +287,6 @@ def main():
     print(dldoc.export_to_markdown())
 
 
-
     EMBED_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 
     tokenizer: BaseTokenizer = HuggingFaceTokenizer(
@@ -299,6 +298,5 @@ def main():
     #chunking_docfile(dldoc)
 
 
-
 if __name__ == "__main__":
-    main()
+    test()

@@ -18,7 +18,6 @@ class TripleLLM:
         self.triples_list_schema = triples_list_schema #defines the output structure of the LLM output
         self.entity_string = ', '.join(entities).strip(', ')
 
-
     def relation_string(self):
         relations_list = []
         for key, values in self.relations.items():
@@ -26,11 +25,12 @@ class TripleLLM:
                 relations_list.append(value)
         return relations_list
 
-
     def prompt_chain(self):
-        chain = self.llm.with_structured_output(schema=zeroshot_triple_schema, method="json_mode")
+        chain = self.llm.with_structured_output(
+            schema=zeroshot_triple_schema,
+            method="json_mode"
+        )
         return chain
-
 
     def prompt_grounding(self, text):
         gr_prompt = self.re_prompt.final_prompt().invoke({
@@ -44,19 +44,20 @@ class TripleLLM:
         print(f"grounded prompt: {gr_prompt}")
         return gr_prompt
 
-
     def filter_triples(self, triples_list):
         filtered_triple_list = []
         try:
             for triple in triples_list['triples']:
                 print(f"triple: {triple}, {triple['subject'], triple['object'], triple['relationship']}")
+                metadata = {}
                 if triple['subject'] or triple['object'] in self.entities:
-                    triple['relation_type'] = key_given_value(self.relations, triple['relationship'])
+                    metadata['relation_type'] = key_given_value(self.relations, triple['relationship'])
+                    metadata['llm_used'] = self.llm.model
+                    triple['metadata'] = metadata
                     filtered_triple_list.append(triple)
         except Exception as e:
             print(f"exception occured: {e}")
         return filtered_triple_list
-
 
     def extract(self, text, _filter=True):
         triples_list = self.prompt_chain().invoke(self.prompt_grounding(text))
@@ -66,13 +67,14 @@ class TripleLLM:
         return triples_list
 
 
-
-if __name__ == "__main__":
+def test():
     doc = ("James McAndersen lives in Ohio. He is a very "
            "good baseball player. He is 32 years old. McAndersen was "
            "directly related to the homicide case of John.")
 
     llama31 = LocalLLM(model="llama3.1:8b", model_provider="Ollama")
+
+    print(f"llama31 attributes: {llama31.model}")
 
     provided_relations = {
         'attributes': ['age', 'gender', 'address', 'lives in', 'profession'],
@@ -81,18 +83,17 @@ if __name__ == "__main__":
 
     provided_entities = ["James McAndersen", "Ohio", "McAndersen", "John"]
 
-
     init_prompt = (
         "You are a networked intelligence helping a human track knowledge triples about all "
-         "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
-         "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
-         f"from the text. "
-         f"A knowledge triple is a clause that contains a subject, a relationship, and an object. "
-         f"The subject is the entity being described, the relationship is the property of the subject that is being "
-         "described, and the object is the value of the property."
+        "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
+        "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
+        f"from the text. "
+        f"A knowledge triple is a clause that contains a subject, a relationship, and an object. "
+        f"The subject is the entity being described, the relationship is the property of the subject that is being "
+        "described, and the object is the value of the property."
     )
 
-    rePrompt = RelationExtractionPrompt(init_prompt = init_prompt)
+    rePrompt = RelationExtractionPrompt(init_prompt=init_prompt)
     print(rePrompt.final_prompt())
 
     tripleLLM = TripleLLM(
@@ -104,3 +105,7 @@ if __name__ == "__main__":
     )
 
     print(f"Extracted triples: {tripleLLM.extract(doc)}")
+
+
+if __name__ == "__main__":
+    test()
