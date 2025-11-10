@@ -190,10 +190,9 @@ def batch_file_extraction(data_folder, input_doc_paths):
         )
 
 
-
 def find_n_th_chunk_with_label(
     iter: Iterable[BaseChunk], n: int, label: DocItemLabel
-) -> Optional[DocChunk]:
+) -> tuple[int, BaseChunk] | tuple[None, None]:
     num_found = -1
     for i, chunk in enumerate(iter):
         doc_chunk = DocChunk.model_validate(chunk)
@@ -212,7 +211,6 @@ def print_chunk(chunks, chunk_pos, chunker, tokenizer, console):
     doc_items_refs = [it.self_ref for it in chunk.meta.doc_items]
     title = f"{chunk_pos=} {num_tokens=} {doc_items_refs=}"
     console.print(Panel(ctx_text, title=title))
-
 
 
 def chunking_dldoc_with_artifacts(chunker, tokenizer, dldoc, console):
@@ -294,8 +292,6 @@ def test():
     )
     chunker = HybridChunker(tokenizer=tokenizer)
     chunking_dldoc_with_artifacts(chunker, tokenizer, dldoc, console)
-
-    #chunking_doc(dldoc)
 
 
 if __name__ == "__main__":
