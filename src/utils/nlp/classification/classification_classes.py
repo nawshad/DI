@@ -13,5 +13,5 @@ class SpacyMultiLabel(BaseClassifier):
         super().__init__()
 
     @debug_func_decorator
-    def classify(self):
+    def classify(self, text):
         pass

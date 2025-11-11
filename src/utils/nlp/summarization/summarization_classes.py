@@ -39,5 +39,5 @@ class LLMSummarzier(BaseSummarizer):
         super().__init__()
 
     @debug_func_decorator
-    def summarize(self):
+    def summarize(self, text):
         pass

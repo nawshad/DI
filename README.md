@@ -20,4 +20,5 @@ artifact store.
 
 ### Troubleshooting:
  - Stanza (1.9.2) and Docling does not go well together, to enable stanza with docling do as follows:
-    - Change torch.load(), and set weights_only=False in line 56 of pretrained.py and line 301 of model.py
+    - Change torch.load(), and set weights_only=False in line 56 of pretrain.py (/home/nawshad/Codes/EPS/Current/DI/venv/lib/python3.12/site-packages/stanza/models/common/pretrain.py) 
+   and line 301 of model.py (/home/nawshad/Codes/EPS/Current/DI/venv/lib/python3.12/site-packages/stanza/models/coref/model.py)

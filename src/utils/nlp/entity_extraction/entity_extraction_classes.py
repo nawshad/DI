@@ -5,20 +5,21 @@ a text input and provides a standardized text output (entities with their
 type and any extra attributes). For stanza based methods, entity extraction
 and their extra attributes is done simultaneously.
 '''
-from typing import Dict, List
 import spacy
 import stanza
-from transformers import pipeline
+from spacy import Language as SpacyLanguage
+from stanza import Pipeline as StanzaPipeline
+from transformers import pipeline, Pipeline as TransPipeline
 from src.utils.debug.decorators import debug_func_decorator
 from src.utils.nlp.entity_extraction.base_entity_extractor import BaseEntityExtractor
 
 class SpacyEntityExtractor(BaseEntityExtractor):
-    def __init__(self, nlp_object):
+    def __init__(self, nlp_object: SpacyLanguage):
         super().__init__() # required to override parent attributes
         self.nlp_object = nlp_object
 
     @debug_func_decorator
-    def extract(self, text: str, entity_types: List):
+    def extract(self, text, entity_types):
         # print(f"Output processing Overridden here at "
         #       f"spacy based processing for: {self.nlp_object} for: {text}")
         doc = self.nlp_object(text)
@@ -30,12 +31,12 @@ class SpacyEntityExtractor(BaseEntityExtractor):
 
 
 class StanzaEntityExtractor(BaseEntityExtractor):
-    def __init__(self, nlp_object):
+    def __init__(self, nlp_object: StanzaPipeline):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
     @debug_func_decorator
-    def extract(self, text: str, entity_types: List):
+    def extract(self, text, entity_types):
         # print(f"Output processing Overridden here at "
         #       f"spacy based processing for: {self.nlp_object} for: {text}")
         doc = self.nlp_object(text)
@@ -47,12 +48,12 @@ class StanzaEntityExtractor(BaseEntityExtractor):
 
 
 class BERTEntityExtractor(BaseEntityExtractor):
-    def __init__(self, nlp_object):
+    def __init__(self, nlp_object: TransPipeline):
         super().__init__()  # required to override parent attributes
         self.nlp_object = nlp_object
 
     @debug_func_decorator
-    def extract(self, text: str, entity_types: List):
+    def extract(self, text, entity_types):
         entity_attribs = {}
         entities = self.nlp_object(text)
         for entity in entities:

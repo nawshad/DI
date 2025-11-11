@@ -1,5 +1,4 @@
 from langchain_core.prompts import ChatPromptTemplate
-
 from src.utils.debug.decorators import debug_func_decorator
 from src.utils.prompts.base_prompt import BasePrompt
 

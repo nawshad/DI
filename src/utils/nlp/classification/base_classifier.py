@@ -6,6 +6,6 @@ class BaseClassifier(ABC):
         pass
 
     @abstractmethod
-    def classify(self):
+    def classify(self, text: str):
         pass
 

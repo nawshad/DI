@@ -5,5 +5,5 @@ class BaseSummarizer(ABC):
         pass
 
     @abstractmethod
-    def summarize(self):
+    def summarize(self, text: str):
         pass

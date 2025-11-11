@@ -2,11 +2,9 @@
 Here we construct the LLM based relation extraction
 with the help of re_prompt and local_llms.
 '''
-from typing import List, Any, Sequence
-from langchain_core.messages import BaseMessage
-from langchain_core.prompt_values import PromptValue
-from langchain_core.runnables import Runnable
-
+from typing import List, Any, Sequence, Dict
+from langchain.chat_models.base import _ConfigurableModel
+from langchain_core.language_models import BaseChatModel
 from src.utils.debug.decorators import debug_func_decorator
 from src.utils.general.data_structure_utils import key_given_value
 from src.utils.llm.local_llms import LocalLLM
@@ -16,7 +14,11 @@ from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
 
 class LLMTripleExtractor(BaseTripleExtractor):
-    def __init__(self, llm, rePrompt, relations, entities, triples_list_schema):
+    def __init__(self, llm:  BaseChatModel | _ConfigurableModel, rePrompt: RelationExtractionPrompt,
+                 relations: Dict[str, List[str]],
+                 entities: List[str],
+                 triples_list_schema: Dict[str, List[Dict[str, str]]]
+                 ):
         super().__init__()
         self.llm = llm
         self.re_prompt = rePrompt
@@ -33,14 +35,14 @@ class LLMTripleExtractor(BaseTripleExtractor):
                 relations_list.append(value)
         return relations_list
 
-    def prompt_chain(self) -> Runnable[PromptValue | str | Sequence[BaseMessage | list[str] | tuple[str, str] | str | dict[str, Any]], dict | Any]:
+    def prompt_chain(self):
         chain = self.llm.with_structured_output(
             schema=zeroshot_triple_schema,
             method="json_mode"
         )
         return chain
 
-    def prompt_grounding(self, text: str) -> str:
+    def prompt_grounding(self, text) :
         gr_prompt = self.re_prompt.final_prompt().invoke({
             'init_prompt': self.re_prompt.init_prompt,
             'relationship_string': self.relationship_string,
