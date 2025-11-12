@@ -10,5 +10,5 @@ SUMM_INIT_PROMPT = (
     "You are an efficient text summarizer. Your task is "
     "to carefully read a given text and"
     " concisely summarize it without losing "
-    "any information."
+    "any information. "
 )

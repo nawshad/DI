@@ -234,7 +234,6 @@ def chunking_doc(dldoc):
     :return: return chunks in a list.
     '''
 
-
     chunker = HybridChunker()
     chunk_iter = chunker.chunk(dl_doc=dldoc)
 

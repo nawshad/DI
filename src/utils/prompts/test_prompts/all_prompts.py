@@ -1,10 +1,11 @@
 from langchain_core.prompts import ChatPromptTemplate
 from src.utils.llm.local_llms import LocalLLM
+from src.utils.nlp.summarization.summarization_classes import LLMSummarzier
 from src.utils.prompts.init_prompt_store import SUMM_INIT_PROMPT, RE_INIT_PROMPT
+from src.utils.prompts.summ_prompt import SummarizationPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_summary_schema
 
-
-def test_re_prompt():
+def test_re_prompt_template():
     prompt_template_triples = ChatPromptTemplate.from_messages(
         [
             (
@@ -55,10 +56,11 @@ def test_re_prompt():
 
 
 def test_summarization_prompt():
-    entity_list = ["John", "James", "Richard"]
+    entity_list = ["John", "James", "Richard", "Dhaka"]
     entity_list_text = ""
     if entity_list:
-        entity_list_text = f"Please include information for the following entities: {entity_list} in your summary."
+        entity_list_string = ', '.join(entity_list).strip()
+        entity_list_text = f"In your summary please include information for the following entities: {entity_list_string}."
 
     summary_example = zeroshot_summary_schema
 
@@ -77,15 +79,13 @@ def test_summarization_prompt():
         ]
     )
     initiating_prompt  = SUMM_INIT_PROMPT
-
     num_sents = 2
-
 
     grounded_prompt = prompt_template_triples.invoke({
         'initiating_prompt': initiating_prompt,
         'num_sentence' : num_sents,
         'summary_example': summary_example,
-        'entity_list': entity_list,
+        #'entity_list': entity_list,
         'text': text
     })
 
@@ -97,8 +97,24 @@ def test_summarization_prompt():
     )
 
     summary = chain.invoke(grounded_prompt)
-
     print(f"summary: {summary}")
+
+
+def test_summarization_prompt_class():
+    entity_list = ["John", "James", "Richard"]
+    init_prompt = SUMM_INIT_PROMPT
+
+    summPrompt = SummarizationPrompt(init_prompt=init_prompt, entity_list=entity_list)
+    print(f"final prompt: {summPrompt.init_prompt}")
+
+    llmSummarizer = LLMSummarzier(
+        llm=llama31,
+        summarization_schema=zeroshot_summary_schema,
+        summPrompt = summPrompt,
+        num_sents=2
+    )
+
+    print(f"Summary: {llmSummarizer.summarize(text)}")
 
 
 if __name__ == "__main__":
@@ -113,5 +129,6 @@ if __name__ == "__main__":
             "Professor but in the different department.")
 
     llama31 = LocalLLM(model=model_name, model_provider="Ollama").model
-    test_re_prompt()
+    # test_re_prompt_template()
     test_summarization_prompt()
+    test_summarization_prompt_class()

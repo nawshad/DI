@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict
 
-from src.utils.nlp.llm_extractor.base_llm_extractor import BaseLLMExtractor
-
-
-class BaseTripleExtractor(BaseLLMExtractor):
+class BaseTripleExtractor(ABC):
     def __init__(self):
         super().__init__()
 

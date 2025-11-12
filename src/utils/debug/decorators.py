@@ -24,18 +24,15 @@ def debug_func_decorator(func):
 
     return wrapper
 
-
 @debug_func_decorator
 def add(a, b):
     """Adds two numbers."""
     return a + b
 
-
 @debug_func_decorator
 def multiply(x, y, z=1):
     """Multiplies three numbers, with a default value for z."""
     return x * y * z
-
 
 def test():
     print("Result of add(5, 3):")
@@ -45,7 +42,6 @@ def test():
     print("\nResult of multiply(2, 4, z=2):")
     result_multiply = multiply(2, 4, z=2)
     print(result_multiply)
-
 
 if __name__ == "__main__":
     test()

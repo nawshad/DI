@@ -8,13 +8,14 @@ from langchain_core.language_models import BaseChatModel
 from src.utils.debug.decorators import debug_func_decorator
 from src.utils.general.data_structure_utils import key_given_value
 from src.utils.llm.local_llms import LocalLLM
+from src.utils.nlp.llm_extractor.base_llm_extractor import BaseLLMExtractor
 from src.utils.nlp.relation_extraction.base_triple_extractor import BaseTripleExtractor
 from src.utils.prompts.init_prompt_store import RE_INIT_PROMPT
 from src.utils.prompts.re_prompt import RelationExtractionPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
 
-class LLMTripleExtractor(BaseTripleExtractor):
+class LLMTripleExtractor(BaseTripleExtractor, BaseLLMExtractor):
     def __init__(self, llm:  BaseChatModel | _ConfigurableModel, rePrompt: RelationExtractionPrompt,
                  relations: Dict[str, List[str]],
                  entities: List[str],
@@ -22,7 +23,7 @@ class LLMTripleExtractor(BaseTripleExtractor):
                  ):
         super().__init__()
         self.llm = llm
-        self.re_prompt = rePrompt
+        self.rePrompt = rePrompt
         self.entities = entities
         self.relations = relations
         self.relationship_string = ', '.join(self.relation_string()).strip(', ')
@@ -44,8 +45,8 @@ class LLMTripleExtractor(BaseTripleExtractor):
         return chain
 
     def prompt_grounding(self, text) :
-        gr_prompt = self.re_prompt.final_prompt().invoke({
-            'init_prompt': self.re_prompt.init_prompt,
+        gr_prompt = self.rePrompt.final_prompt().invoke({
+            'init_prompt': self.rePrompt.init_prompt,
             'relationship_string': self.relationship_string,
             'triples_list_schema': self.triples_list_schema,
             'entity_string' : self.entity_string,
