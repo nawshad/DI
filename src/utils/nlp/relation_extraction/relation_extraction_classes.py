@@ -9,6 +9,7 @@ from src.utils.debug.decorators import debug_func_decorator
 from src.utils.general.data_structure_utils import key_given_value
 from src.utils.llm.local_llms import LocalLLM
 from src.utils.nlp.relation_extraction.base_triple_extractor import BaseTripleExtractor
+from src.utils.prompts.init_prompt_store import RE_INIT_PROMPT
 from src.utils.prompts.re_prompt import RelationExtractionPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
@@ -101,15 +102,7 @@ def test():
 
     provided_entities = ["James McAndersen", 'Ohio', "McAndersen", 'John']
 
-    init_prompt = (
-        "You are a networked intelligence helping a human track knowledge triples about all "
-        "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
-        "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
-        "from the text. "
-        "A knowledge triple is a clause that contains a subject, a relationship, and an object. "
-        "The subject is the entity being described, the relationship is the property of the subject that is being "
-        "described, and the object is the value of the property."
-    )
+    init_prompt = RE_INIT_PROMPT
 
     rePrompt = RelationExtractionPrompt(init_prompt=init_prompt)
     print(f"rePrompt final_prompt(): {rePrompt.final_prompt()}")

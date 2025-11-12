@@ -1,7 +1,7 @@
 from typing import Dict, List
 from langchain_core.prompts import ChatPromptTemplate
 
-from src.utils.general.data_structure import key_given_value
+from src.utils.general.data_structure_utils import key_given_value
 from src.utils.llm.local_llms import LocalLLM
 
 

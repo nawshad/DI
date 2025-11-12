@@ -1,8 +1,6 @@
 '''
 All the local llm sub class are declared here
 '''
-
-
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import AIMessage
@@ -47,7 +45,6 @@ def test():
 
     hfLocalLLM = HFLocalLLM(pretrained_model_name_or_path="gpt2")
     print(hfLocalLLM.input("Hi!"))
-
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ from src.utils.docling.doc_extraction_utils import find_item_by_ref
 from src.utils.llm.local_llms import LocalLLM
 from src.utils.nlp.entity_extraction.entity_extraction_classes import StanzaEntityExtractor
 from src.utils.nlp.relation_extraction.relation_extraction_classes import LLMTripleExtractor
+from src.utils.prompts.init_prompt_store import RE_INIT_PROMPT
 from src.utils.prompts.re_prompt import RelationExtractionPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_triple_schema
 
@@ -82,15 +83,7 @@ if __name__ == "__main__":
 
     entity_types = ['ORG', 'PERSON', 'LOC', 'GPE']
 
-    init_prompt = (
-        "You are a networked intelligence helping a human track knowledge triples about all "
-        "relevant people, things, concepts, etc. and integrating them with your knowledge stored within "
-        "your weights as well as that stored in a knowledge graph. Extract all of the knowledge triples "
-        f"from the text. "
-        f"A knowledge triple is a clause that contains a subject, a relationship, and an object. "
-        f"The subject is the entity being described, the relationship is the property of the subject that is being "
-        "described, and the object is the value of the property."
-    )
+    init_prompt = RE_INIT_PROMPT
 
     rePrompt = RelationExtractionPrompt(init_prompt=init_prompt)
 

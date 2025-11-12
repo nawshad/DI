@@ -3,8 +3,10 @@
 - For each task, create an abstract class with common functions and 
 strictly use Typing for that class.
   - All the sub-classes will inherit the basic functions from the base class
-  but do specific stuffs as needed.
-  - Use debug_decorator when needed, by default we use it in overridden methods in
+  but do specific stuffs as needed. Overidden function arguments and return types
+  need not to be typed. Only the class specific ones, including overridden constructors
+  do.
+  - Use debug_decorators when needed, by default we use it in overridden methods in
   sub-classes.
 
 ### Naming Conventions:
@@ -19,3 +21,4 @@ strictly use Typing for that class.
 and high level project overview.
 - file names under each folder must be all lowercase_and_underscored.
 - file names will be short string summary of the content of the file.
+- Global literals should be in all UPPERCASE.

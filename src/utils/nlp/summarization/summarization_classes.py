@@ -16,7 +16,7 @@ Saliency Based Summarization.
         of those entity frequency.
 
     - Take the top_k sentence as the summary.
-    - Sentence Bases Saliency:
+    - Sentence Based Saliency:
         - Find sentence based attention scores
         - Take top-k salient sentences as a summary
 
