@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 
 class BaseClassifier(ABC):
@@ -6,6 +7,6 @@ class BaseClassifier(ABC):
         pass
 
     @abstractmethod
-    def classify(self, text: str):
+    def classify(self, text: str) -> List[str]:
         pass
 

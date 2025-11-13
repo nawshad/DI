@@ -6,12 +6,11 @@ from docling_core.types.doc.labels import DocItemLabel
 from docling_core.types.doc.document import TableItem, DoclingDocument
 import os
 from dotenv import load_dotenv
-
 from src.utils.docling.doc_extraction_utils import find_item_by_ref
 from src.utils.llm.local_llms import LocalLLM
 from src.utils.nlp.entity_extraction.entity_extraction_classes import StanzaEntityExtractor
 from src.utils.nlp.relation_extraction.relation_extraction_classes import LLMTripleExtractor
-from src.utils.nlp.summarization.summarization_classes import LLMSummarzier
+from src.utils.nlp.summarization.summarization_classes import LLMSummarizer
 from src.utils.prompts.init_prompt_store import RE_INIT_PROMPT, SUMM_INIT_PROMPT
 from src.utils.prompts.re_prompt import RelationExtractionPrompt
 from src.utils.prompts.summ_prompt import SummarizationPrompt
@@ -99,26 +98,28 @@ if __name__ == "__main__":
         if chunk_entities: # reducing formatting errors, needs to be handled inside the function as well!
             print(f"chunk entities: {chunk_entities}")
 
+            summPrompt = SummarizationPrompt(init_prompt=init_summ_prompt, entity_list=chunk_entities)
+
+            llmSummarizer = LLMSummarizer(
+                llm=localLLM.model,
+                summPrompt=summPrompt,
+                num_sents=2,
+                output_schema=zeroshot_summary_schema
+            )
+
+            print(f"Summary: {llmSummarizer.summarize(chunk.text)}")
+
+            llm_summary = llmSummarizer.summarize(chunk.text)['summary']
+
             llmTriple = LLMTripleExtractor(
                 llm=localLLM.model,
                 rePrompt=rePrompt,
                 relations=provided_relations,
                 entities=chunk_entities,
-                triples_list_schema=zeroshot_triple_schema
+                output_schema=zeroshot_triple_schema
             )
 
-            print(f"triples: {llmTriple.extract(chunk.text)}")
-
-            summPrompt = SummarizationPrompt(init_prompt=init_summ_prompt, entity_list=chunk_entities)
-
-            llmSummarizer = LLMSummarzier(
-                llm=localLLM.model,
-                summarization_schema=zeroshot_summary_schema,
-                summPrompt=summPrompt,
-                num_sents=2
-            )
-
-            print(f"Summary: {llmSummarizer.summarize(chunk.text)}")
+            print(f"triples: {llmTriple.extract(llm_summary)}")
 
         for item_ref in chunk.meta.doc_items:
             if item_ref.label == DocItemLabel.TABLE:

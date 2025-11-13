@@ -1,7 +1,9 @@
 from langchain_core.prompts import ChatPromptTemplate
 from src.utils.llm.local_llms import LocalLLM
-from src.utils.nlp.summarization.summarization_classes import LLMSummarzier
-from src.utils.prompts.init_prompt_store import SUMM_INIT_PROMPT, RE_INIT_PROMPT
+from src.utils.nlp.classification.classification_classes import LLMMultiLabelClassifier
+from src.utils.nlp.summarization.summarization_classes import LLMSummarizer
+from src.utils.prompts.classify_prompt import ClassificationPrompt
+from src.utils.prompts.init_prompt_store import SUMM_INIT_PROMPT, RE_INIT_PROMPT, CLASSIFY_INIT_PROMPT
 from src.utils.prompts.summ_prompt import SummarizationPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_summary_schema
 
@@ -107,14 +109,29 @@ def test_summarization_prompt_class():
     summPrompt = SummarizationPrompt(init_prompt=init_prompt, entity_list=entity_list)
     print(f"final prompt: {summPrompt.init_prompt}")
 
-    llmSummarizer = LLMSummarzier(
+    llmSummarizer = LLMSummarizer(
         llm=llama31,
-        summarization_schema=zeroshot_summary_schema,
+        output_schema=zeroshot_summary_schema,
         summPrompt = summPrompt,
         num_sents=2
     )
 
     print(f"Summary: {llmSummarizer.summarize(text)}")
+
+
+def test_classification_prompt_class():
+    labels = {
+        'murder' : 'anything related to murder',
+        'robbery': 'anything related to robbery',
+        'suicide': 'anything related to suicide'
+    }
+
+    init_prompt = CLASSIFY_INIT_PROMPT
+    classifyPrompt = ClassificationPrompt(init_prompt=init_prompt, label_desc=labels)
+    print(f"classifyPrompt: {classifyPrompt.init_prompt}")
+    llmMultilabelClassifier = LLMMultiLabelClassifier(llm=llama31, classifyPrompt=classifyPrompt)
+    labels = llmMultilabelClassifier.classify(text)
+    print(f"labels: {labels}")
 
 
 if __name__ == "__main__":
@@ -130,5 +147,6 @@ if __name__ == "__main__":
 
     llama31 = LocalLLM(model=model_name, model_provider="Ollama").model
     # test_re_prompt_template()
-    test_summarization_prompt()
-    test_summarization_prompt_class()
+    # test_summarization_prompt()
+    # test_summarization_prompt_class()
+    test_classification_prompt_class()

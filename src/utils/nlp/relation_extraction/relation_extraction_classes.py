@@ -2,7 +2,7 @@
 Here we construct the LLM based relation extraction
 with the help of re_prompt and local_llms.
 '''
-from typing import List, Any, Sequence, Dict
+from typing import List, Dict
 from langchain.chat_models.base import _ConfigurableModel
 from langchain_core.language_models import BaseChatModel
 from src.utils.debug.decorators import debug_func_decorator
@@ -19,7 +19,7 @@ class LLMTripleExtractor(BaseTripleExtractor, BaseLLMExtractor):
     def __init__(self, llm:  BaseChatModel | _ConfigurableModel, rePrompt: RelationExtractionPrompt,
                  relations: Dict[str, List[str]],
                  entities: List[str],
-                 triples_list_schema: Dict[str, List[Dict[str, str]]]
+                 output_schema: Dict[str, List[Dict[str, str]]]
                  ):
         super().__init__()
         self.llm = llm
@@ -27,7 +27,7 @@ class LLMTripleExtractor(BaseTripleExtractor, BaseLLMExtractor):
         self.entities = entities
         self.relations = relations
         self.relationship_string = ', '.join(self.relation_string()).strip(', ')
-        self.triples_list_schema = triples_list_schema #defines the output structure of the LLM output
+        self.triples_list_schema = output_schema #defines the output structure of the LLM output
         self.entity_string = ', '.join(entities).strip(', ')
 
     def relation_string(self) -> List:
@@ -93,7 +93,6 @@ def test():
     # model_name = "deepseek-r1:8b"
 
     llama31 = LocalLLM(model=model_name, model_provider="Ollama")
-
     print(f"llama31 attributes: {llama31.model}")
 
     provided_relations = {
@@ -113,7 +112,7 @@ def test():
         rePrompt=rePrompt,
         relations=provided_relations,
         entities=provided_entities,
-        triples_list_schema=zeroshot_triple_schema
+        output_schema=zeroshot_triple_schema
     )
 
     print(f"Extracted triples: {llmTriple.extract(doc)}")
