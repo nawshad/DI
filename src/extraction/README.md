@@ -12,6 +12,11 @@
             - https://docling-project.github.io/docling/examples/advanced_chunking_and_serialization/#setup 
   - Optimization strategies for large scale file loading.
     - Parallel batch processing.
+    
+- Develop all the functions that we will perform while extraction using nlp utils:
+  - coref_resolution based chunking 
+  - different other chunkings (for langchain based chunking)
+  - entity_doc_rel
   
 ### Docling Wisdom:
 -  See the docling parsed json for more info:
@@ -52,5 +57,5 @@
     - images of each page if it was a pdf file, otherwise this is empty.
 
 - When a document is chunked, it is chunked based on grounded (text or otherwise)
-chunks with reference to each elements which are referenced from the chunk.
+chunks with reference to each element which are referenced from the chunk.
 
