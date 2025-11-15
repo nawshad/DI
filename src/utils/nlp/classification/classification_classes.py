@@ -3,31 +3,15 @@ Doc categorizer
 using different NLP
 libraries.
 '''
-from typing import Sequence, Any, List
-
 from langchain.chat_models.base import _ConfigurableModel
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import BaseMessage
-from langchain_core.prompt_values import PromptValue
-from langchain_core.runnables import Runnable
-
 from src.utils.debug.decorators import debug_func_decorator
 from src.utils.nlp.classification.base_classifier import BaseClassifier
 from src.utils.nlp.llm_extractor.base_llm_extractor import BaseLLMExtractor
 from src.utils.prompts.classify_prompt import ClassificationPrompt
 from src.utils.structured_outputs.llm_output import zeroshot_classify_schema
-
-
+from spacy import Language as SpacyLanguage
 # See Lab for some ideas
-
-class SpacyMultiLabelClassifier(BaseClassifier):
-    def __init__(self):
-        super().__init__()
-
-    @debug_func_decorator
-    def classify(self, text):
-        pass
-
 
 class LLMMultiLabelClassifier(BaseClassifier, BaseLLMExtractor):
     '''
@@ -63,15 +47,16 @@ class LLMMultiLabelClassifier(BaseClassifier, BaseLLMExtractor):
         # print(f"labels_list: {labels}")
         return labels
 
-
-
 class BERTMultiLabelClassifier(BaseClassifier):
     def __init__(self, model, tokenizer):
         super().__init__()
         self.model = model
         self.tokenizer = tokenizer
 
-    def classify(self, text):
+        #May be for HF models, we can use pipeline object? Need to explore that!
+
+    @debug_func_decorator
+    def classify(self, text, topk=3):
         '''
         initiate the model with provided tokenizer
         return prediction of the labels provided a
@@ -80,4 +65,13 @@ class BERTMultiLabelClassifier(BaseClassifier):
         :param text:
         :return: List of returned Labels
         '''
+        pass
+
+class SpacyMultiLabelClassifier(BaseClassifier):
+    def __init__(self, nlp_object: SpacyLanguage):
+        super().__init__()
+        self.nlp_object = nlp_object
+
+    @debug_func_decorator
+    def classify(self, text, topk=3):
         pass
