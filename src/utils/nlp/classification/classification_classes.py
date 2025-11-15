@@ -3,7 +3,7 @@ Doc categorizer
 using different NLP
 libraries.
 '''
-from typing import Sequence, Any
+from typing import Sequence, Any, List
 
 from langchain.chat_models.base import _ConfigurableModel
 from langchain_core.language_models import BaseChatModel
@@ -62,3 +62,22 @@ class LLMMultiLabelClassifier(BaseClassifier, BaseLLMExtractor):
         labels = self.prompt_chain().invoke(self.prompt_grounding(text))
         # print(f"labels_list: {labels}")
         return labels
+
+
+
+class BERTMultiLabelClassifier(BaseClassifier):
+    def __init__(self, model, tokenizer):
+        super().__init__()
+        self.model = model
+        self.tokenizer = tokenizer
+
+    def classify(self, text):
+        '''
+        initiate the model with provided tokenizer
+        return prediction of the labels provided a
+        text chunk or sentence. Remember to maintain
+        the token count within limit.
+        :param text:
+        :return: List of returned Labels
+        '''
+        pass
